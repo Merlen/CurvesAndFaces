@@ -12,7 +12,9 @@ public final class Point {
         y = Math.random();
         z = Math.random();
     }
+
     // point initialized from parameters
+
     public Point(double x, double y, double z) {
         this.x = x;
         this.y = y;
@@ -23,12 +25,15 @@ public final class Point {
     public double x() {
         return x;
     }
+
     public double y() {
         return y;
     }
+
     public double z() {
         return z;
     }
+
     public double distanceTo(Point that) {
         double dx = this.x - that.x;
         double dy = this.y - that.y;
@@ -36,19 +41,22 @@ public final class Point {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    public Point addVectorToPoint(Vector v){
+    public Point addVectorToPoint(Vector v) {
         return new Point();
-    };
+    }
+
+    ;
     
-    Point SubtractVectorFromPoint(Vector v){
+    Point SubtractVectorFromPoint(Vector v) {
         return new Point();
-    };
-    Vector SubtractPointFromPoint(Point p){
+    }
+
+    ;
+    Vector SubtractPointFromPoint(Point p) {
         double[] xdata = {1.0, 2.0, 3.0, 4.0};
         return new Vector(xdata);
     }
 
-                
     // return a string representation of this point
     public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";

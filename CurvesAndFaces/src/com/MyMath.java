@@ -11,18 +11,21 @@ package com;
  */
 public class MyMath {
 
-    public static Point[] copyPointArray(Point[] points) {
-        Point[] tmp = new Point[points.length + 1];
-        System.arraycopy(points, 0, tmp, 0, points.length);
-
+    public static Point[] copyPointArray(Point[] arr) {
+        Point[] tmp = new Point[arr.length + 1];
+        
+        System.arraycopy(arr, 0, tmp, 0, arr.length);
+     
         return tmp;
     }
 
-    public static Point[] removeElt(Point[] arr, int remIndex) {
-        int numElts = arr.length - (remIndex + 1);
-        Point[] tmp = new Point[numElts];
-        
-        System.arraycopy(arr, remIndex + 1, tmp, remIndex, numElts);
+    public static Point[] removeElt(Point[] arr, int element) {
+
+        Point[] tmp = new Point[arr.length - 1];
+
+        System.arraycopy(arr, 0, tmp, 0, element);
+        System.arraycopy(arr, element + 1, tmp, element, arr.length - element - 1);
+
         return tmp;
     }
 

@@ -73,21 +73,31 @@ public class Scene implements GLEventListener {
     }
 
     public void display(GLAutoDrawable drawable) {
-        update();
+        //update();
         render(drawable);
     }
 
     public void init(GLAutoDrawable drawable) {
         readOBJ("src/input/UB1_1.obj");
         drawable.getGL().setSwapInterval(1);
+
     }
 
     public void dispose(GLAutoDrawable drawable) {
         // put your cleanup code here
     }
 
-    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        // called when user resizes the window
+    public void reshape(GLAutoDrawable gldrawable, int x, int y, int width, int height) {
+        final GL2 gl = gldrawable.getGL().getGL2();
+        if (height <= 0) {
+            height = 1;
+        }
+
+        final float h = (float) width / (float) height;
+
+        gl.glViewport(0, 0, width, height);
+        gl.glMatrixMode(gl.GL_PROJECTION);
+        gl.glLoadIdentity();
     }
 
     private void update() {
@@ -98,12 +108,6 @@ public class Scene implements GLEventListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glPointSize(pointSize);
 
-        gl.glRotatef(listener.tempRotX, 1, 0, 0);				//Rotation with angle TempRot on X-Axis
-        gl.glRotatef(listener.tempRotY, 0, 1, 0);				//Rotation with angle TempRot on Y-Axis
-        gl.glRotatef(listener.tempRotZ, 0, 0, 1);				//Rotation with angle TempRot on Z-Axis
-        gl.glScalef(listener.zoom, listener.zoom, listener.zoom);					//Pseudo zoom with factor zoom
-        gl.glTranslatef(listener.tempTraX, listener.tempTraY, listener.tempTraZ); //Movement on X-, Y-, Z-Axis
-
         axes(gl);
 
         gl.glBegin(GL.GL_POINTS);
@@ -112,7 +116,18 @@ public class Scene implements GLEventListener {
         for (Point point : listener.points) {
             gl.glVertex3f(point.x / scaleFactor, point.y / scaleFactor, point.z / scaleFactor);
         }
+
         gl.glEnd();
+
+        gl.glBegin(GL.GL_LINE_STRIP);
+        gl.glColor3f(1, 1, 0);
+            
+        for (Point point : listener.points) {
+            gl.glVertex3f(point.x / scaleFactor, point.y / scaleFactor, point.z / scaleFactor);
+        }
+
+        gl.glEnd();
+
     }
 
     public final void readOBJ(String filename) {

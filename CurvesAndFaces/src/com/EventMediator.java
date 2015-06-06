@@ -107,58 +107,59 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 break;
             case 'd':
                 deletePoint();
+                break;
             case 'z':
                 tempRotZ += rotFactor;
                 if (tempRotZ >= 360) {
                     tempRotZ = 0;
                 }
-                log(tempRotZ);
+                log("rot z+: "+ tempRotZ);
                 break;
             case 'y':
                 tempRotY += rotFactor;
                 if (tempRotY >= 360) {
                     tempRotY = 0;
                 }
-                log(tempRotY);
+                log("rot y+: " + tempRotY);
                 break;
             case 'x':
                 tempRotX += rotFactor;
                 if (tempRotX >= 360) {
                     tempRotX = 0;
                 }
-                log(tempRotX);
+                log("rot x+: " +tempRotX);
                 break;
             case 'Z':
                 tempRotZ -= rotFactor;
                 if (tempRotZ < 0) {
                     tempRotZ = 359;
                 }
-                log(tempRotZ);
+                log("rot z-: " +tempRotZ);
                 break;
             case 'Y':
                 tempRotY -= rotFactor;
                 if (tempRotY < 0) {
                     tempRotY = 359;
                 }
-                log(tempRotY);
+                log("rot y-: " +tempRotY);
                 break;
             case 'X':
                 tempRotX -= rotFactor;
                 if (tempRotX < 0) {
                     tempRotX = 359;
                 }
-                log(tempRotX);
+                log("rot x-: " +tempRotX);
                 break;
             case '+':
                 zoom += zoomFactor;
-                log(zoomFactor);
+                log("zoom+: " +zoomFactor);
                 break;
             case '-':
                 zoom -= zoomFactor;
                 if (zoom <= 0) {
                     zoom = 0;
                 }
-                log(zoomFactor);
+                log("zoom-: " +zoomFactor);
                 break;
         }
     }
@@ -177,7 +178,6 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
 
         points = com.MyMath.copyPointArray(points);
         points[count] = new Point(x, y, z);
-        log(points[count]);
         count++;
 
     }
@@ -189,25 +189,22 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         }
         int idx = user_input.nextInt();
 
-        log(points[idx]);
-
         log("New Value for x: ");
         points[idx].x = user_input.nextFloat();
         log("New Value for y: ");
         points[idx].y = user_input.nextFloat();
         log("New Value for z: ");
         points[idx].z = user_input.nextFloat();
-
-        log(points[idx]);
-
     }
 
     private void deletePoint() {
         for (int i = 0; i < points.length; i++) {
             log(i + ": Point at" + points[i]);
         }
+        
         log("Which Point do you want to delete ?");
         int idx = user_input.nextInt();
         points = MyMath.removeElt(points, idx);
+        count--;
     }
 }

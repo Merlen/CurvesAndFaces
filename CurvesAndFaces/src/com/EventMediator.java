@@ -162,6 +162,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 log("zoom-: " +zoomFactor);
                 break;
         }
+        canvas.repaint();
     }
 
     private void log(Object aObject) {

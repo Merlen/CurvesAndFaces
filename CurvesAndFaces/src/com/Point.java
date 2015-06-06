@@ -2,59 +2,71 @@ package com;
 
 public final class Point {
 
-    private final double x;    // x-coordinate
-    private final double y;    // y-coordinate
-    private final double z;    // z-coordinate
-
+    public float x;    // x-coordinate
+    public float y;    // y-coordinate
+    public float z;    // z-coordinate
+    public float w = 0;    //epsilon
     // random point
+
     public Point() {
-        x = Math.random();
-        y = Math.random();
-        z = Math.random();
+        x = (float) Math.random();
+        y = (float) Math.random();
+        z = (float) Math.random();
     }
 
     // point initialized from parameters
-
-    public Point(double x, double y, double z) {
+    public Point(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
     // accessor methods
-    public double x() {
+    public float x() {
         return x;
     }
 
-    public double y() {
+    public float y() {
         return y;
     }
 
-    public double z() {
+    public float z() {
         return z;
     }
 
-    public double distanceTo(Point that) {
-        double dx = this.x - that.x;
-        double dy = this.y - that.y;
-        double dz = this.z - that.z;
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    public float w() {
+        return w;
     }
 
-    public Point addVectorToPoint(Vector v) {
-        return new Point();
+    public Point plus(Vector v) {
+        Point sum = new Point();
+        sum.x = x + v.x();
+        sum.y = y + v.y();
+        sum.z = z + v.z();
+        sum.w = w + v.w();
+        return sum;
     }
 
-    ;
-    
-    Point SubtractVectorFromPoint(Vector v) {
-        return new Point();
+    public Point minus(Vector v) {
+        Point sum = new Point();
+        sum.x = x - v.x();
+        sum.y = y - v.y();
+        sum.z = z - v.z();
+        sum.w = w - v.w();
+        return sum;
     }
 
-    ;
-    Vector SubtractPointFromPoint(Point p) {
-        double[] xdata = {1.0, 2.0, 3.0, 4.0};
-        return new Vector(xdata);
+    public Vector minus(Point p) {
+        Vector sum = new Vector();
+        sum.x = x - p.x();
+        sum.y = y - p.y();
+        sum.z = z - p.z();
+        sum.w = w - p.w();
+        return sum;
+    }
+
+    public float scalar(float alpha) {
+        return x * alpha + y * alpha + z * alpha + w * alpha;
     }
 
     // return a string representation of this point
@@ -62,18 +74,15 @@ public final class Point {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
-    /*
-     public static void main(String[] args) {        
-     Point p = new Point();
-     System.out.println("p  = " + p);
-     System.out.println("   x     = " + p.x());
-     System.out.println("   y     = " + p.y());
-     System.out.println("   r     = " + p.r());
-     System.out.println();
+    public void setX(float x) {
+        this.x = x;
+    }
 
-     Point q = new Point(0.5, 0.5, 0.5);
-     System.out.println("q  = " + q);
-     System.out.println("dist(p, q) = " + p.distanceTo(q));
-     }
-     */
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
 }

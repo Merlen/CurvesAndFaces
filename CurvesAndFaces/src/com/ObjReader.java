@@ -6,12 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class ObjReader {
 
-    List<Point> points = new ArrayList<>();
+    ArrayList<Point> points = new ArrayList<>();
 
     public ObjReader(String aFileName) {
         fFilePath = Paths.get(aFileName);
@@ -35,10 +34,10 @@ public class ObjReader {
                 case "v":
                     Scanner values = new Scanner(aLine.replace("v", ""));
                     values.useDelimiter("  | ");
-                    if (values.hasNextDouble()) {
-                        double x = values.nextDouble();
-                        double y = values.nextDouble();
-                        double z = values.nextDouble();
+                    if (values.hasNextFloat()) {
+                        float x = values.nextFloat();
+                        float y = values.nextFloat();
+                        float z = values.nextFloat();
                         log("Value is : " + quote(x, y, z));
                     }
 
@@ -57,12 +56,12 @@ public class ObjReader {
         System.out.println(String.valueOf(aObject));
     }
 
-    private String quote(double x, double y, double z) {
+    private String quote(float x, float y, float z) {
         points.add(new Point(x, y, z));
         return "x: " + x + "  y: " + y + "  z: " + z;
     }
 
-    public List<Point> getPoints() {
+    public ArrayList<Point> getPoints() {
         return points;
     }
 }

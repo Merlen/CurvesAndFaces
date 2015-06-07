@@ -70,6 +70,7 @@ public final class Point {
     }
 
     // return a string representation of this point
+    @Override
     public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";
     }

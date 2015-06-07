@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package help;
 
 /**
@@ -27,9 +22,21 @@ public class MyColor {
     private static int STEPS = 15;
 
     private MyColor(int r, int g, int b) {
-        if(r != 0) this.r = 255 / r; else this.r = 0;
-        if(g != 0) this.g = 255 / g; else this.g = 0;
-        if(b != 0) this.b = 255 / b; else this.b = 0;
+        if (r != 0) {
+            this.r = 255 / (float) r;
+        } else {
+            this.r = 0f;
+        }
+        if (g != 0) {
+            this.g = 255 / (float) g;
+        } else {
+            this.g = 0f;
+        }
+        if (b != 0) {
+            this.b = 255 / (float) b;
+        } else {
+            this.b = 0f;
+        }
     }
 
     public static MyColor COLORSWITCH() {

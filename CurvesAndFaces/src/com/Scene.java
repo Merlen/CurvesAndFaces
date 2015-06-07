@@ -32,14 +32,6 @@ public class Scene implements GLEventListener {
     int my = 0, mx = 0, mz = 0;
     int scaleFactor = 10;
 
-    private float tempRotX;
-    private float tempRotY;
-    private float tempRotZ;
-    private float tempTraX;
-    private float tempTraY;
-    private float tempTraZ;
-    private float zoom;
-
     private static EventMediator listener;
 
     public static void main(String[] args) {
@@ -73,7 +65,6 @@ public class Scene implements GLEventListener {
     }
 
     public void display(GLAutoDrawable drawable) {
-        update();
         render(drawable);
     }
 
@@ -100,72 +91,28 @@ public class Scene implements GLEventListener {
         gl.glLoadIdentity();
     }
 
-    private void update() {
-    }
-
     private void render(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glPointSize(pointSize);
 
+        gl.glRotatef(listener.rotX, 1, 0, 0);				//Rotation with angle TempRot on X-Axis
+        gl.glRotatef(listener.rotY, 0, 1, 0);				//Rotation with angle TempRot on Y-Axis
+        gl.glRotatef(listener.rotZ, 0, 0, 1);				//Rotation with angle TempRot on Z-Axis
+        //gl.glScalef(listener.zoom, listener.zoom, listener.zoom);					//Pseudo zoom with factor zoom
+        gl.glTranslatef(listener.traX, listener.traY, listener.traZ); //Movement on X-, Y-, Z-Axis
+
         axes(gl);
 
-        for (Point point : listener.points) {
-            drawPoint(gl, point);
-        }
+        drawPointsAndLine(gl, listener.points, false);
+        Point[] bez = MyBezier.deCasteljau(listener.points, listener.t);
 
-        for (int i = 0; i < listener.count - 1; i++) {
-            drawLine(gl, listener.points[i], listener.points[i + 1]);
-        }
-        Point P = listener.points[0];
+        drawPointsAndLine(gl, bez, true);
+        resetTransform();
+    }
 
-        /*
-        for (int j = 0; j < 1000; ++j) {
-            float t = (float) (j / 999.0);
-
-            Point M = MyBezier.bernstein(listener.points, t, listener.count - 1);
-            drawCurve(gl, P, M, t);
-            P = M;
-        }*/
-        for (int i = 0; i < (listener.points.length - 4); i++) {
-            for (int j = 0; j < 1000; ++j) {
-                float t = (float) (j / 999.0);
-                Point point = MyBezier.deCasteljau(listener.points[i], listener.points[i + 1], listener.points[i + 2], listener.points[i + 3], t);
-                drawCurve(gl, P, point, t);
-                P = point;
-            }
-        }
-        /*
-         P = listener.points[0];
-         for (int i = 0; i < (listener.points.length - 4); i++) {
-         for (int j = 0; j < 1000; ++j) {
-         float t = (float) (j / 999.0);
-         Point point = MyBezier.deCasteljau(listener.points[i], listener.points[i + 1], listener.points[i + 2], listener.points[i + 3], t);
-         drawCurve(gl, P, point, t);
-         P = point;
-         }
-         }`*/
-
-        /*
-         gl.glBegin(GL.GL_LINE_STRIP);
-         gl.glColor3f(1, 0, 1);
-         for (int i = 0; i < (listener.points.length - 4); i++) {
-         for (int j = 0; j < 1000; ++j) {
-         float t = (float) (j / 999.0);
-         Point point = MyBezier.deCasteljau(listener.points[i], listener.points[i + 1], listener.points[i + 2], listener.points[i + 3], t);
-         gl.glVertex3f(point.x / scaleFactor, point.y / scaleFactor, point.z / scaleFactor);
-
-         }
-         }
-         gl.glEnd();
-
-         gl.glBegin(GL.GL_LINE_STRIP);
-         gl.glColor3f(1, 1, 0);
-         for (Point point : listener.points) {
-         gl.glVertex3f(point.x / scaleFactor, point.y / scaleFactor, point.z / scaleFactor);
-         }
-         gl.glEnd();
-         */
+    private void resetTransform() {
+        listener.rotX = listener.rotY = listener.rotZ = listener.traX = listener.traY = listener.traZ = listener.zoom = 0;
     }
 
     public final void readOBJ(String filename) {
@@ -216,16 +163,16 @@ public class Scene implements GLEventListener {
         System.out.println(String.valueOf(aObject));
     }
 
-    void drawPoint(GL2 gl, Point p) {//draw control points
-        gl.glColor3f(0.0f, 0.0f, 1.0f);
+    void drawPoint(GL2 gl, Point p, MyColor color) {//draw control points
+        gl.glColor3f(color.r, color.g, color.b);
         gl.glBegin(GL.GL_POINTS);
         gl.glVertex3f(p.x / scaleFactor, p.y / scaleFactor, p.z / scaleFactor);
         gl.glEnd();
         gl.glFlush();
     }
 
-    void drawLine(GL2 gl, Point p1, Point p2) {//draw the line between control points
-        gl.glColor3f(0.0f, 1.0f, 0.0f);
+    void drawLine(GL2 gl, Point p1, Point p2, MyColor color) {//draw the line between control points
+        gl.glColor3f(color.r, color.g, color.b);
         gl.glLineWidth(2.0f);
         gl.glBegin(gl.GL_LINES);
         gl.glVertex3f(p1.x / scaleFactor, p1.y / scaleFactor, p1.z / scaleFactor);
@@ -244,4 +191,29 @@ public class Scene implements GLEventListener {
         gl.glFlush();
     }
 
+    void drawPointsAndLine(GL2 gl, Point[] list, boolean bez) {
+
+        for (int i = 0; i < (list.length - 1); i++) {
+            if (!bez) {
+                drawLine(gl, list[i], list[i + 1], MyColor.WHITE);
+                drawPoint(gl, list[i], MyColor.BLUE);
+                drawPoint(gl, list[i + 1], MyColor.BLUE);
+
+            } else {
+                if (i < (listener.count - 2)) {
+                    drawLine(gl, list[i], list[i + 1], MyColor.GREEN);
+                    drawPoint(gl, list[i], MyColor.RED);
+                    drawPoint(gl, list[i + 1], MyColor.RED);
+                } else if (i > (listener.count - 2) && i < (list.length - 2)) {
+                    drawLine(gl, list[i], list[i + 1], MyColor.YELLOW);
+                    drawPoint(gl, list[i], MyColor.AQUA);
+                    drawPoint(gl, list[i + 1], MyColor.AQUA);
+                } else {
+                    drawPoint(gl, list[list.length - 1], MyColor.WHITE);
+                }
+
+            }
+        }
+
+    }
 }

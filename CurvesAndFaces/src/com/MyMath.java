@@ -10,7 +10,7 @@ package com;
  * @author Merlen
  */
 public class MyMath {
-
+    
     public static Point[] copyPointArray(Point[] arr) {
         Point[] tmp = new Point[arr.length + 1];
         

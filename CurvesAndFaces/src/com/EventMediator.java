@@ -19,23 +19,31 @@ import java.util.Scanner;
  */
 public class EventMediator implements KeyListener, MouseListener, MouseMotionListener {
 
-    public Point[] points;
-    public int count = 0;
-    public float tempRotX;
-    public float tempRotY;
-    public float tempRotZ;
-    public float rotFactor = 1;
-
-    public float tempTraX;
-    public float tempTraY;
-    public float tempTraZ;
-    public float traFactor = 1;
-
-    public float zoom = 1;
-    public float zoomFactor = 0.1f;
-
+    private float tmpZoom = 1;
+    private float rotFactor = 1;
+    private float traFactor = 1;
+    private float zoomFactor = 0.1f;
     private Scanner user_input = new Scanner(System.in);
     private static GLCanvas canvas;
+    private float tmpTraX;
+    private float tmpTraY;
+    private float tmpTraZ;
+    private float tmpRotX;
+    private float tmpRotY;
+    private float tmpRotZ;
+
+    public Point[] points;
+    public int count = 0;
+    public float traX = 0;
+    public float traY = 0;
+    public float traZ = 0;
+    public float rotX = 0;
+    public float rotY = 0;
+    public float rotZ = 0;
+    public static float zoom = 1;
+
+    public float t = 0;
+    public float STEPS = 0.1f;
 
     public EventMediator(GLCanvas canvas) {
         this.canvas = canvas;
@@ -43,10 +51,34 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
 
     public void keyPressed(KeyEvent e) {
 
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
+        int key = e.getKeyCode();  // Tells which key was pressed.
+        switch (key) {
 
+            case KeyEvent.VK_LEFT:
+                t -= STEPS;
+                break;
+            case KeyEvent.VK_RIGHT:
+                t += STEPS;
+                break;
+            case KeyEvent.VK_DOWN:
+                break;
+            case KeyEvent.VK_UP:
+                break;
+            case KeyEvent.VK_ALT:
+                traX = tmpTraX;
+                traY = tmpTraY;
+                traZ = tmpTraZ;
+
+                rotX = tmpRotX;
+                rotY = tmpRotY;
+                rotZ = tmpRotZ;
+                
+                zoom = tmpZoom;
+                tmpTraX = tmpTraY = tmpTraZ = tmpRotX = tmpRotY = tmpRotZ = 0;
+                tmpZoom = 1;
+                break;
         }
-        //redisplay();
+        canvas.repaint();
     }
 
     // Redisplay must be called if no animator is used.
@@ -109,57 +141,39 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 deletePoint();
                 break;
             case 'z':
-                tempRotZ += rotFactor;
-                if (tempRotZ >= 360) {
-                    tempRotZ = 0;
-                }
-                log("rot z+: "+ tempRotZ);
+                rotZ += rotFactor;
+                tmpRotZ -= rotFactor;
                 break;
             case 'y':
-                tempRotY += rotFactor;
-                if (tempRotY >= 360) {
-                    tempRotY = 0;
-                }
-                log("rot y+: " + tempRotY);
+                rotY += rotFactor;
+                tmpRotY -= rotFactor;
                 break;
             case 'x':
-                tempRotX += rotFactor;
-                if (tempRotX >= 360) {
-                    tempRotX = 0;
-                }
-                log("rot x+: " +tempRotX);
+                rotX += rotFactor;
+                tmpRotX -= rotFactor;
                 break;
             case 'Z':
-                tempRotZ -= rotFactor;
-                if (tempRotZ < 0) {
-                    tempRotZ = 359;
-                }
-                log("rot z-: " +tempRotZ);
+                rotZ -= rotFactor;
+                tmpRotZ += rotFactor;
                 break;
             case 'Y':
-                tempRotY -= rotFactor;
-                if (tempRotY < 0) {
-                    tempRotY = 359;
-                }
-                log("rot y-: " +tempRotY);
+                rotY -= rotFactor;
+                tmpRotY += rotFactor;
                 break;
             case 'X':
-                tempRotX -= rotFactor;
-                if (tempRotX < 0) {
-                    tempRotX = 359;
-                }
-                log("rot x-: " +tempRotX);
+                rotX -= rotFactor;
+                tmpRotX += rotFactor;
                 break;
             case '+':
                 zoom += zoomFactor;
-                log("zoom+: " +zoomFactor);
+                tmpZoom -= zoomFactor;
                 break;
             case '-':
                 zoom -= zoomFactor;
-                if (zoom <= 0) {
-                    zoom = 0;
+                if (tmpZoom <= 0) {
+                    tmpZoom = 0;
                 }
-                log("zoom-: " +zoomFactor);
+                tmpZoom += zoomFactor;
                 break;
         }
         canvas.repaint();
@@ -202,7 +216,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         for (int i = 0; i < points.length; i++) {
             log(i + ": Point at" + points[i]);
         }
-        
+
         log("Which Point do you want to delete ?");
         int idx = user_input.nextInt();
         points = MyMath.removeElt(points, idx);

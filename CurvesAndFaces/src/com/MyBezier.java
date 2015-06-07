@@ -5,6 +5,8 @@
  */
 package com;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Merlen
@@ -20,8 +22,6 @@ public class MyBezier {
 
     //returns point on bezier Curve
     public static Point deCasteljau(Point a, Point b, Point c, Point d, float t) {
-        log("Calculate Bezier with t: " + t);
-
         ab = bezierBetweenPoints(a, b, t);
         bc = bezierBetweenPoints(b, c, t);
         cd = bezierBetweenPoints(c, d, t);
@@ -32,6 +32,35 @@ public class MyBezier {
         Point bezier = bezierBetweenPoints(abbc, bccd, t);
 
         return bezier;
+    }
+
+    public static Point[] deCasteljau(Point[] points, float t) {
+        ArrayList<Point> pointList = new ArrayList();
+        ArrayList<Point> tmp = new ArrayList();
+
+        for (int i = 0; i < (points.length - 1); i++) {
+            tmp.add(bezierBetweenPoints(points[i], points[i + 1], t));
+        }
+        pointList.addAll(tmp);
+        tmp.clear();
+
+        tmp.addAll(calcPoints(pointList, t));
+        pointList.addAll(tmp);
+
+        pointList.addAll(calcPoints(tmp, t));
+
+        Point[] curveLine = new Point[pointList.size()];
+        pointList.toArray(curveLine);
+
+        return curveLine;
+    }
+
+    private static ArrayList<Point> calcPoints(ArrayList<Point> points, float t) {
+        ArrayList<Point> tmp = new ArrayList();
+        for (int i = 0; i < (points.size() - 1); i++) {
+            tmp.add(bezierBetweenPoints(points.get(i), points.get(i + 1), t));
+        }
+        return tmp;
     }
 
     private static Point bezierBetweenPoints(Point a, Point b, float t) {

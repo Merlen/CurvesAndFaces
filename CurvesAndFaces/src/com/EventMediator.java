@@ -20,10 +20,10 @@ import java.util.Scanner;
 public class EventMediator implements KeyListener, MouseListener, MouseMotionListener {
 
     private float tmpZoom = 1;
-    private float rotFactor = 1;
-    private float traFactor = 1;
-    private float zoomFactor = 0.1f;
-    private Scanner user_input = new Scanner(System.in);
+    private final float rotFactor = 1;
+    private final float traFactor = 1;
+    private final float zoomFactor = 0.1f;
+    private final Scanner user_input = new Scanner(System.in);
     private static GLCanvas canvas;
     private float tmpTraX;
     private float tmpTraY;
@@ -40,15 +40,17 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
     public float rotX = 0;
     public float rotY = 0;
     public float rotZ = 0;
-    public static float zoom = 1;
+    public float zoom = 0;
 
     public float t = 0.5f;
     public float STEPS = 0.1f;
+    public boolean castel = false;
 
     public EventMediator(GLCanvas canvas) {
         this.canvas = canvas;
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
 
         int key = e.getKeyCode();  // Tells which key was pressed.
@@ -75,7 +77,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 
                 zoom = tmpZoom;
                 tmpTraX = tmpTraY = tmpTraZ = tmpRotX = tmpRotY = tmpRotZ = 0;
-                tmpZoom = 1;
+                tmpZoom = 0;
                 break;
         }
         canvas.repaint();
@@ -170,10 +172,13 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 break;
             case '-':
                 zoom -= zoomFactor;
-                if (tmpZoom <= 0) {
-                    tmpZoom = 0;
-                }
                 tmpZoom += zoomFactor;
+                break;
+            case 'c':
+                castel = true;
+                break;
+            case 'b':
+                castel = false;
                 break;
         }
         canvas.repaint();
@@ -222,4 +227,12 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         points = MyMath.removeElt(points, idx);
         count--;
     }
+    
+        private void addPoint(float x, float y, float z) {
+        points = com.MyMath.copyPointArray(points);
+        points[count] = new Point(x, y, z);
+        count++;
+
+    }
+
 }

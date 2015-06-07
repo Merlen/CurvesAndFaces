@@ -38,6 +38,7 @@ public class ObjReader {
                         float x = values.nextFloat();
                         float y = values.nextFloat();
                         float z = values.nextFloat();
+                        points.add(new Point(x, y, z));
                         log("Value is : " + quote(x, y, z));
                     }
 
@@ -57,7 +58,6 @@ public class ObjReader {
     }
 
     private String quote(float x, float y, float z) {
-        points.add(new Point(x, y, z));
         return "x: " + x + "  y: " + y + "  z: " + z;
     }
 

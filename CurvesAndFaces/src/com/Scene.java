@@ -19,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,11 +104,19 @@ public class Scene implements GLEventListener {
         gl.glTranslatef(listener.traX, listener.traY, listener.traZ); //Movement on X-, Y-, Z-Axis
 
         axes(gl);
-
         drawPointsAndLine(gl, listener.points, false);
-        Point[] bez = MyBezier.deCasteljau(listener.points, listener.t);
+        Point[] bez;
 
-        drawPointsAndLine(gl, bez, true);
+        if (listener.castel) {
+            bez = Casteljau.deCasteljau(listener.points, listener.t);
+            drawPointsAndLine(gl, bez, true);
+
+            Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f);
+            drawCurve(gl, castelCurve, MyColor.AQUA);
+        } else {
+            //bez = MyBezier.bernstein(listener.points, listener.t);
+        }
+
         resetTransform();
     }
 
@@ -163,6 +172,9 @@ public class Scene implements GLEventListener {
         System.out.println(String.valueOf(aObject));
     }
 
+    /**
+     * Draw Point
+     */
     void drawPoint(GL2 gl, Point p, MyColor color) {//draw control points
         gl.glColor3f(color.r, color.g, color.b);
         gl.glBegin(GL.GL_POINTS);
@@ -171,6 +183,9 @@ public class Scene implements GLEventListener {
         gl.glFlush();
     }
 
+    /**
+     * DrawLine Between two Points
+     */
     void drawLine(GL2 gl, Point p1, Point p2, MyColor color) {//draw the line between control points
         gl.glColor3f(color.r, color.g, color.b);
         gl.glLineWidth(2.0f);
@@ -181,16 +196,22 @@ public class Scene implements GLEventListener {
         gl.glFlush();
     }
 
-    void drawCurve(GL2 gl, Point p1, Point p2, float color) {//draw the bezier curve
-        gl.glColor3f(color, 0.0f, 0.0f);
-        gl.glLineWidth(0.2f);
-        gl.glBegin(gl.GL_LINES);
-        gl.glVertex3f(p1.x / scaleFactor, p1.y / scaleFactor, p1.z / scaleFactor);
-        gl.glVertex3f(p2.x / scaleFactor, p2.y / scaleFactor, p2.z / scaleFactor);
+    /**
+     * Draw Curve with PointList
+     */
+    void drawCurve(GL2 gl, Point[] points, MyColor color) {
+        gl.glColor3d(color.r, color.g, color.b);
+        gl.glBegin(gl.GL_LINE_STRIP);
+        for (Point p : points) {
+            log(p);
+            gl.glVertex3f(p.x / scaleFactor, p.y / scaleFactor, p.z / scaleFactor);
+        }
         gl.glEnd();
-        gl.glFlush();
     }
 
+    /**
+     * Draw Points and Lines between them
+     */
     void drawPointsAndLine(GL2 gl, Point[] list, boolean bez) {
         if (!bez) {
             for (int i = 0; i < (list.length - 1); i++) {
@@ -199,44 +220,30 @@ public class Scene implements GLEventListener {
                 drawPoint(gl, list[i + 1], MyColor.BLUE);
             }
         } else {
-            drawCurve(gl, list, listener.count);
+            drawControlPoints(gl, list, listener.count);
         }
 
     }
 
-    Point[] switchList(Point[] list) {
-        Point[] tmp = new Point[list.length];
-
-        for (int i = 0; i < (list.length - 1); i++) {
-            for (int j = (list.length - 1); j > 0; j--) {
-                tmp[i] = list[j];
-            }
-        }
-        return tmp;
-    }
-    
-    
-    //TODO
-int step = 1;
-    void drawCurve(GL2 gl, Point[] list, int length) {
+    /**
+     * Draw ControlPoints with Lines
+     */
+    void drawControlPoints(GL2 gl, Point[] list, int length) {
         Point[] tmp = list;
-        int counter = 0;
-        log("step: " + step + " length " + length);
-        step ++;
-        if (length > 1) {
+        int counter = 1;
+        if (length > 2) {
             while (counter < (length - 1)) {
-                drawLine(gl, list[counter], list[counter + 1], MyColor.COLORSWITCH());
-                drawPoint(gl, list[counter], MyColor.RED);
-                drawPoint(gl, list[counter + 1], MyColor.RED);
-
+                drawLine(gl, tmp[0], tmp[0 + 1], MyColor.COLORSWITCH());
+                drawPoint(gl, tmp[0], MyColor.RED);
+                drawPoint(gl, tmp[0 + 1], MyColor.RED);
                 tmp = MyMath.removeElt(tmp, 0);
-                log(tmp.length + " :: ");
                 counter++;
             }
-            //tmp = MyMath.removeElt(tmp, 0);
-            drawCurve(gl, tmp, tmp.length);
-        } else{
-            //drawPoint(gl, list[0], MyColor.RED);
+            tmp = MyMath.removeElt(tmp, 0);
+            drawControlPoints(gl, tmp, length - 1);
+        } else {
+            log("Target Point: " + tmp[0]);
+            drawPoint(gl, tmp[0], MyColor.AQUA);
         }
     }
 }

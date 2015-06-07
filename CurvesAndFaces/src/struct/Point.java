@@ -1,4 +1,4 @@
-package com;
+package struct;
 
 public final class Point {
 

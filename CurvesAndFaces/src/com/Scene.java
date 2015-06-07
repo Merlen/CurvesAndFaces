@@ -5,6 +5,12 @@
  */
 package com;
 
+import listener.EventMediator;
+import help.MyMath;
+import help.MyColor;
+import struct.Point;
+import bezier.Casteljau;
+import bezier.Bernstein;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -144,7 +150,7 @@ public class Scene implements GLEventListener {
 
     public void setPoints(List<Point> points) {
         for (Point point : points) {
-            plaPts = com.MyMath.copyPointArray(plaPts);
+            plaPts = help.MyMath.copyPointArray(plaPts);
             plaPts[listener.count] = new Point(point.x, point.y, point.z);
             listener.count++;
         }

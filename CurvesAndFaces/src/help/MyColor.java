@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com;
+package help;
 
 /**
  *
@@ -11,9 +11,9 @@ package com;
  */
 public class MyColor {
 
-    float r;
-    float g;
-    float b;
+    public float r;
+    public float g;
+    public float b;
 
     public static MyColor GREEN = new MyColor(0, 255, 0);
     public static MyColor WHITE = new MyColor(255, 255, 255);

@@ -1,4 +1,6 @@
-package com;
+package bezier;
+
+import struct.Point;
 
 /**
  *

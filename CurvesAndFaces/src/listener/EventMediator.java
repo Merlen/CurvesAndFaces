@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com;
+package listener;
 
+import help.MyMath;
+import struct.Point;
 import com.jogamp.opengl.awt.GLCanvas;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -196,7 +198,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         log("Value for z: ");
         float z = user_input.nextFloat();
 
-        points = com.MyMath.copyPointArray(points);
+        points = help.MyMath.copyPointArray(points);
         points[count] = new Point(x, y, z);
         count++;
 
@@ -229,7 +231,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
     }
     
         private void addPoint(float x, float y, float z) {
-        points = com.MyMath.copyPointArray(points);
+        points = help.MyMath.copyPointArray(points);
         points[count] = new Point(x, y, z);
         count++;
 

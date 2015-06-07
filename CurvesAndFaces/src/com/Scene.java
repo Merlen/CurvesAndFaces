@@ -19,7 +19,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,7 +113,13 @@ public class Scene implements GLEventListener {
             Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f);
             drawCurve(gl, castelCurve, MyColor.AQUA);
         } else {
-            //bez = MyBezier.bernstein(listener.points, listener.t);
+            Point M;
+            Point P = listener.points[0];
+            for (float t = 0; t <= 1.0; t += 0.01) {
+                M = Bernstein.bernstein(listener.points, t, listener.count - 1);
+                drawLine(gl, P, M, MyColor.AQUA);
+                P = M;
+            }
         }
 
         resetTransform();
@@ -141,7 +146,6 @@ public class Scene implements GLEventListener {
         for (Point point : points) {
             plaPts = com.MyMath.copyPointArray(plaPts);
             plaPts[listener.count] = new Point(point.x, point.y, point.z);
-            log(plaPts[listener.count]);
             listener.count++;
         }
         listener.points = plaPts;
@@ -203,7 +207,6 @@ public class Scene implements GLEventListener {
         gl.glColor3d(color.r, color.g, color.b);
         gl.glBegin(gl.GL_LINE_STRIP);
         for (Point p : points) {
-            log(p);
             gl.glVertex3f(p.x / scaleFactor, p.y / scaleFactor, p.z / scaleFactor);
         }
         gl.glEnd();

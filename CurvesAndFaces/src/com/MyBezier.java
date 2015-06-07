@@ -34,6 +34,12 @@ public class MyBezier {
         return bezier;
     }
 
+    /**
+     * 4 Point ==>   
+     * @param points
+     * @param t
+     * @return 
+    */
     public static Point[] deCasteljau(Point[] points, float t) {
         ArrayList<Point> pointList = new ArrayList();
         ArrayList<Point> tmp = new ArrayList();

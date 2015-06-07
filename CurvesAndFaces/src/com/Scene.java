@@ -192,28 +192,51 @@ public class Scene implements GLEventListener {
     }
 
     void drawPointsAndLine(GL2 gl, Point[] list, boolean bez) {
-
-        for (int i = 0; i < (list.length - 1); i++) {
-            if (!bez) {
+        if (!bez) {
+            for (int i = 0; i < (list.length - 1); i++) {
                 drawLine(gl, list[i], list[i + 1], MyColor.WHITE);
                 drawPoint(gl, list[i], MyColor.BLUE);
                 drawPoint(gl, list[i + 1], MyColor.BLUE);
-
-            } else {
-                if (i < (listener.count - 2)) {
-                    drawLine(gl, list[i], list[i + 1], MyColor.GREEN);
-                    drawPoint(gl, list[i], MyColor.RED);
-                    drawPoint(gl, list[i + 1], MyColor.RED);
-                } else if (i > (listener.count - 2) && i < (list.length - 2)) {
-                    drawLine(gl, list[i], list[i + 1], MyColor.YELLOW);
-                    drawPoint(gl, list[i], MyColor.AQUA);
-                    drawPoint(gl, list[i + 1], MyColor.AQUA);
-                } else {
-                    drawPoint(gl, list[list.length - 1], MyColor.WHITE);
-                }
-
             }
+        } else {
+            drawCurve(gl, list, listener.count);
         }
 
+    }
+
+    Point[] switchList(Point[] list) {
+        Point[] tmp = new Point[list.length];
+
+        for (int i = 0; i < (list.length - 1); i++) {
+            for (int j = (list.length - 1); j > 0; j--) {
+                tmp[i] = list[j];
+            }
+        }
+        return tmp;
+    }
+    
+    
+    //TODO
+int step = 1;
+    void drawCurve(GL2 gl, Point[] list, int length) {
+        Point[] tmp = list;
+        int counter = 0;
+        log("step: " + step + " length " + length);
+        step ++;
+        if (length > 1) {
+            while (counter < (length - 1)) {
+                drawLine(gl, list[counter], list[counter + 1], MyColor.COLORSWITCH());
+                drawPoint(gl, list[counter], MyColor.RED);
+                drawPoint(gl, list[counter + 1], MyColor.RED);
+
+                tmp = MyMath.removeElt(tmp, 0);
+                log(tmp.length + " :: ");
+                counter++;
+            }
+            //tmp = MyMath.removeElt(tmp, 0);
+            drawCurve(gl, tmp, tmp.length);
+        } else{
+            //drawPoint(gl, list[0], MyColor.RED);
+        }
     }
 }

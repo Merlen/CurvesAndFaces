@@ -20,14 +20,22 @@ public class MyColor {
     public static MyColor AQUA = new MyColor(0, 255, 255);
     public static MyColor BLUE = new MyColor(0, 0, 255);
     public static MyColor BLACK = new MyColor(0, 0, 0);
-    public static MyColor YELLOW = new MyColor(255,255,0);
-    public static MyColor RED = new MyColor(255,0,0);
-    public static MyColor ORANGERED = new MyColor(240,69,0);
-    
+    public static MyColor YELLOW = new MyColor(255, 255, 0);
+    public static MyColor RED = new MyColor(255, 0, 0);
+    public static MyColor ORANGERED = new MyColor(240, 69, 0);
+
+    private static int STEPS = 15;
 
     private MyColor(int r, int g, int b) {
-        this.r = r / 255;
-        this.g = g / 255;
-        this.b = b / 255;
+        if(r != 0) this.r = 255 / r; else this.r = 0;
+        if(g != 0) this.g = 255 / g; else this.g = 0;
+        if(b != 0) this.b = 255 / b; else this.b = 0;
+    }
+
+    public static MyColor COLORSWITCH() {
+        if (STEPS < 0) {
+            STEPS = 255;
+        }
+        return new MyColor(0, 255 - STEPS, 0);
     }
 }

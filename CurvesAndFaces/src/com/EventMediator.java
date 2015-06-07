@@ -42,7 +42,7 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
     public float rotZ = 0;
     public static float zoom = 1;
 
-    public float t = 0;
+    public float t = 0.5f;
     public float STEPS = 0.1f;
 
     public EventMediator(GLCanvas canvas) {

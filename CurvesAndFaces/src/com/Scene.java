@@ -70,7 +70,7 @@ public class Scene implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
-        readOBJ("src/input/UB1_1.obj");
+        readOBJ("src\\input\\UB1_1.obj");
         drawable.getGL().setSwapInterval(1);
 
     }

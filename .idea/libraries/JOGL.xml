@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="JOGL">
+    <CLASSES>
+      <root url="file://D:/JOGL" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://D:/JOGL/doc/gluegen-javadoc/gluegen/javadoc" />
+      <root url="file://D:/JOGL/doc/jogl-javadoc/jogl/javadoc" />
+      <root url="file://D:/JOGL/doc/jogl-javadoc/jogl/javadoc_jogl_spec" />
+      <root url="file://D:/JOGL/doc/jogl-javadoc/jogl/javadoc_nativewindow_spec" />
+    </JAVADOC>
+    <SOURCES />
+    <jarDirectory url="file://D:/JOGL" recursive="false" />
+  </library>
+</component>

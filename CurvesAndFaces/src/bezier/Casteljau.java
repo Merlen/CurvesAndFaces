@@ -18,7 +18,7 @@ public class Casteljau {
     private static ArrayList<Point> tempPoints = new ArrayList();
 
     /**
-     * DeCastelJau Formula for ControlPoints
+     * DeCasteljau Formula for ControlPoints
      */
     public static Point[] deCasteljau(Point[] points, float t) {
         ArrayList<Point> pointList = new ArrayList();
@@ -91,5 +91,5 @@ public class Casteljau {
         ler.z = (1 - t) * a.z + t * b.z;
         return ler;
     }
-    
+
 }

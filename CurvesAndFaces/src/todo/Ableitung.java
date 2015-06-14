@@ -1,5 +1,7 @@
 package todo;
 
+import struct.Point;
+
 /**
  *
  * @author Merlen
@@ -7,11 +9,11 @@ package todo;
 public class Ableitung {
 
 
-    public static void Casteljau(){
+    public static void Casteljau(Point[] points){
 
     }
 
-    public static void Bernstein(){
+    public static void Bernstein(Point[] points){
 
     }
 

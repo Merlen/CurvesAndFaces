@@ -1,5 +1,7 @@
 package help;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Merlen
@@ -9,15 +11,17 @@ public class MyColor {
     public float r;
     public float g;
     public float b;
+    public static  ArrayList<MyColor> colors = new ArrayList();
 
     public static MyColor GREEN = new MyColor(0, 255, 0);
     public static MyColor WHITE = new MyColor(255, 255, 255);
     public static MyColor AQUA = new MyColor(0, 255, 255);
     public static MyColor BLUE = new MyColor(0, 0, 255);
-    public static MyColor BLACK = new MyColor(0, 0, 0);
     public static MyColor YELLOW = new MyColor(255, 255, 0);
     public static MyColor RED = new MyColor(255, 0, 0);
     public static MyColor ORANGERED = new MyColor(240, 69, 0);
+
+    public static MyColor BLACK = new MyColor(0, 0, 0);
 
     private static int STEPS = 15;
 
@@ -37,6 +41,7 @@ public class MyColor {
         } else {
             this.b = 0f;
         }
+        colors.add(this);
     }
 
     public static MyColor COLORSWITCH() {

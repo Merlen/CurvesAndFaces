@@ -1,4 +1,4 @@
-package com;
+package scene;
 
 import bezier.Bernstein;
 import com.jogamp.opengl.*;
@@ -20,7 +20,6 @@ class PolynomialScene implements GLEventListener {
     private PolynomialMediator listener;
     private Point[] plaPts = new Point[0];
     private float t = 1;
-    private MyColor[] myColors = {MyColor.AQUA, MyColor.BLUE, MyColor.GREEN, MyColor.RED, MyColor.YELLOW};
     private float pointSize = 10;
     private int scaleFactor = 1;
     GLCanvas canvas;
@@ -107,11 +106,11 @@ class PolynomialScene implements GLEventListener {
 
             for (float t = 0; t <= 1.0; t += 0.01) {
                 M = Bernstein.bernsteinPolynomial(i, plaPts.length - 1, t);
-                if (P != null) drawLine(gl, P, M, myColors[j]);
+                if (P != null) drawLine(gl, P, M, MyColor.colors.get(j));
                 P = M;
             }
             j++;
-            if (j > myColors.length) j = 0;
+            if (j > MyColor.colors.size() - 1) j = 0;
         }
 
         resetTransform();

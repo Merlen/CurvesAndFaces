@@ -1,7 +1,8 @@
-package com;
+package scene;
 
 import bezier.Bernstein;
 import bezier.Casteljau;
+import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import help.MyColor;

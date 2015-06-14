@@ -2,8 +2,9 @@ package bezier;
 
 import struct.Point;
 
+import java.util.ArrayList;
+
 /**
- *
  * @author Merlen
  */
 public class Bernstein {
@@ -33,7 +34,7 @@ public class Bernstein {
         return factorial(n) / (factorial(f) * factorial(n - f));
     }
 
-    public static Point bernstein(Point[] ctrl, float t, int n) {
+    public static Point bernsteinCurve(Point[] ctrl, float t, int n) {
         Point N = new Point();
         N.x = N.y = N.z = 0;
         for (int i = 0; i <= n; i++) {
@@ -41,11 +42,20 @@ public class Bernstein {
             N.y += ctrl[i].y * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i));
             N.z += ctrl[i].z * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i));
         }
+        return N;
+    }
+
+    public static Point bernsteinPolynomial(int i, int n, float t) {
+        Point N = new Point();
+        N.x = N.y = N.z = 0;
+
+        N.x = t;
+        N.y = (float) (binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)));
 
         return N;
     }
 
-    private static void log(Object aObject) {
-        System.out.println(String.valueOf(aObject));
+    private  void log(Object aObject) {
+        System.out.println("Bernstein: " + " " +String.valueOf(aObject));
     }
 }

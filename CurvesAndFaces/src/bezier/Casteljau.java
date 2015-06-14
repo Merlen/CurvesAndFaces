@@ -44,6 +44,8 @@ public class Casteljau {
 
     /**
      * @return List of Points for an Curve
+     *  @param lowT Lower Parameter
+     *  @param upT Upper Parameter
      */
     public static Point[] deCasteljauCurve(Point[] points, float lowT, float upT) {
         curvePoints = new ArrayList();
@@ -59,6 +61,7 @@ public class Casteljau {
 
     /**
      * Get a Point of Casteljau
+     *
      */
     private static Point getCasteljauPoint(float t, ArrayList<Point> ctrlPoints) {
         tempPoints.clear();

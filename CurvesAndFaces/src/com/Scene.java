@@ -1,21 +1,15 @@
 package com;
 
-import listener.EventMediator;
-import help.MyMath;
-import help.MyColor;
-import struct.Point;
-import bezier.Casteljau;
 import bezier.Bernstein;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLProfile;
+import bezier.Casteljau;
+import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.util.*;
+import help.MyColor;
+import help.MyMath;
+import listener.EventMediator;
+import struct.Point;
 
-import java.awt.Frame;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -23,15 +17,14 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
  * @author Merlen
  */
 public class Scene implements GLEventListener {
 
     Point[] plaPts = new Point[0];
     private float pointSize = 10;
-    int my = 0, mx = 0, mz = 0;
     int scaleFactor = 10;
+    private PolynomialScene polynomialScene;
 
     private static EventMediator listener;
 
@@ -40,7 +33,7 @@ public class Scene implements GLEventListener {
         GLCapabilities caps = new GLCapabilities(glp);
         GLCanvas canvas = new GLCanvas(caps);
 
-        Frame frame = new Frame("AWT Window Test");
+        Frame frame = new Frame("Curve Frame");
         frame.setSize(500, 500);
         frame.add(canvas);
         frame.setVisible(true);
@@ -53,9 +46,6 @@ public class Scene implements GLEventListener {
         });
 
         canvas.addGLEventListener(new Scene());
-
-        Animator animator = new Animator(canvas);
-        //animator.start();
 
         listener = new EventMediator(canvas);
 
@@ -70,7 +60,7 @@ public class Scene implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
-        readOBJ("src\\input\\UB1_1.obj");
+        readOBJ("src/input/UB1_1.obj");
         drawable.getGL().setSwapInterval(1);
 
     }
@@ -84,54 +74,67 @@ public class Scene implements GLEventListener {
         if (height <= 0) {
             height = 1;
         }
-
-        final float h = (float) width / (float) height;
-
         gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(gl.GL_PROJECTION);
+        gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
     }
+
 
     private void render(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glPointSize(pointSize);
 
-        gl.glRotatef(listener.rotX, 1, 0, 0);				//Rotation with angle TempRot on X-Axis
-        gl.glRotatef(listener.rotY, 0, 1, 0);				//Rotation with angle TempRot on Y-Axis
-        gl.glRotatef(listener.rotZ, 0, 0, 1);				//Rotation with angle TempRot on Z-Axis
-        //gl.glScalef(listener.zoom, listener.zoom, listener.zoom);					//Pseudo zoom with factor zoom
+        gl.glRotatef(listener.rotX, 1, 0, 0);                //Rotation with angle TempRot on X-Axis
+        gl.glRotatef(listener.rotY, 0, 1, 0);                //Rotation with angle TempRot on Y-Axis
+        gl.glRotatef(listener.rotZ, 0, 0, 1);                //Rotation with angle TempRot on Z-Axis
         gl.glTranslatef(listener.traX, listener.traY, listener.traZ); //Movement on X-, Y-, Z-Axis
 
+        scaleFactor =  listener.zoom; // zoom
         axes(gl);
         drawPointsAndLine(gl, listener.points, false);
         Point[] bez;
 
         if (listener.castel) {
-            bez = Casteljau.deCasteljau(listener.points, listener.t);
+            bez = Casteljau.deCasteljau(listener.points, listener.t); // control Points
             drawPointsAndLine(gl, bez, true);
 
-            Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f);
+            Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f); //curve
             drawCurve(gl, castelCurve, MyColor.AQUA);
         } else {
+
             Point M;
             Point P = listener.points[0];
             for (float t = 0; t <= 1.0; t += 0.01) {
-                M = Bernstein.bernstein(listener.points, t, listener.count - 1);
+                M = Bernstein.bernsteinCurve(listener.points, t, listener.count - 1); //curve
                 drawLine(gl, P, M, MyColor.AQUA);
                 P = M;
             }
+
+           if(polynomialScene == null){
+               polynomialScene =  new PolynomialScene(listener.points, listener.t);
+
+           }else {
+               polynomialScene.setPoints(listener.points, listener.t);
+           }
         }
 
         resetTransform();
     }
 
     private void resetTransform() {
-        listener.rotX = listener.rotY = listener.rotZ = listener.traX = listener.traY = listener.traZ = listener.zoom = 0;
+        if (polynomialScene != null && polynomialScene.closed){
+            polynomialScene = null;
+        }
+
+        listener.rotX = listener.rotY = listener.rotZ = listener.traX = listener.traY = listener.traZ = 0;
     }
 
+    /**
+     * Init ObjReader
+     */
     public final void readOBJ(String filename) {
-        File f = new File("src/input/UB1_1.obj");
+        File f = new File(filename);
         ObjReader p = new ObjReader(f.getAbsolutePath());
         try {
             p.processLineByLine();
@@ -143,6 +146,9 @@ public class Scene implements GLEventListener {
         }
     }
 
+    /**
+     * Set Points in Listener
+     */
     public void setPoints(List<Point> points) {
         for (Point point : points) {
             plaPts = help.MyMath.copyPointArray(plaPts);
@@ -152,29 +158,34 @@ public class Scene implements GLEventListener {
         listener.points = plaPts;
     }
 
-    /*Draws Axises in Model*/
+    /**
+     * Draws Axises in Model
+     */
     void axes(GL2 gl) {
-        gl.glBegin(gl.GL_LINES);
+        gl.glBegin(GL.GL_LINES);
         gl.glColor3f(1, 0, 0);
         gl.glVertex3f(-50, 0, 0);
         gl.glVertex3f(50, 0, 0);
         gl.glEnd();
 
-        gl.glBegin(gl.GL_LINES);
+        gl.glBegin(GL.GL_LINES);
         gl.glColor3f(0, 0, 1);
         gl.glVertex3f(0, -50, 0);
         gl.glVertex3f(0, 50, 0);
         gl.glEnd();
 
-        gl.glBegin(gl.GL_LINES);
+        gl.glBegin(GL.GL_LINES);
         gl.glColor3f(0, 1, 0);
         gl.glVertex3f(0, 0, -50);
         gl.glVertex3f(0, 0, 50);
         gl.glEnd();
     }
 
+    /**
+     * Prints Information
+     */
     private void log(Object aObject) {
-        System.out.println(String.valueOf(aObject));
+        System.out.println(this.getClass() + " " + String.valueOf(aObject));
     }
 
     /**
@@ -192,13 +203,15 @@ public class Scene implements GLEventListener {
      * DrawLine Between two Points
      */
     void drawLine(GL2 gl, Point p1, Point p2, MyColor color) {//draw the line between control points
-        gl.glColor3f(color.r, color.g, color.b);
-        gl.glLineWidth(2.0f);
-        gl.glBegin(gl.GL_LINES);
-        gl.glVertex3f(p1.x / scaleFactor, p1.y / scaleFactor, p1.z / scaleFactor);
-        gl.glVertex3f(p2.x / scaleFactor, p2.y / scaleFactor, p2.z / scaleFactor);
-        gl.glEnd();
-        gl.glFlush();
+        if (gl != null) {
+            gl.glColor3f(color.r, color.g, color.b);
+            gl.glLineWidth(2.0f);
+            gl.glBegin(GL.GL_LINES);
+            gl.glVertex3f(p1.x / scaleFactor, p1.y / scaleFactor, p1.z / scaleFactor);
+            gl.glVertex3f(p2.x / scaleFactor, p2.y / scaleFactor, p2.z / scaleFactor);
+            gl.glEnd();
+            gl.glFlush();
+        }
     }
 
     /**
@@ -206,7 +219,7 @@ public class Scene implements GLEventListener {
      */
     void drawCurve(GL2 gl, Point[] points, MyColor color) {
         gl.glColor3d(color.r, color.g, color.b);
-        gl.glBegin(gl.GL_LINE_STRIP);
+        gl.glBegin(GL.GL_LINE_STRIP);
         for (Point p : points) {
             gl.glVertex3f(p.x / scaleFactor, p.y / scaleFactor, p.z / scaleFactor);
         }
@@ -237,9 +250,9 @@ public class Scene implements GLEventListener {
         int counter = 1;
         if (length > 2) {
             while (counter < (length - 1)) {
-                drawLine(gl, tmp[0], tmp[0 + 1], MyColor.COLORSWITCH());
+                drawLine(gl, tmp[0], tmp[1], MyColor.COLORSWITCH());
                 drawPoint(gl, tmp[0], MyColor.RED);
-                drawPoint(gl, tmp[0 + 1], MyColor.RED);
+                drawPoint(gl, tmp[1], MyColor.RED);
                 tmp = MyMath.removeElt(tmp, 0);
                 counter++;
             }

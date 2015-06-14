@@ -40,7 +40,7 @@ public class ObjReader {
                         float y = values.nextFloat();
                         float z = values.nextFloat();
                         points.add(new Point(x, y, z));
-                        log("Value is : " + quote(x, y, z));
+                        //log("Value is : " + quote(x, y, z));
                     }
 
                     break;
@@ -54,8 +54,8 @@ public class ObjReader {
     private final Path fFilePath;
     private final static Charset ENCODING = StandardCharsets.UTF_8;
 
-    private static void log(Object aObject) {
-        System.out.println(String.valueOf(aObject));
+    private void log(Object aObject) {
+        System.out.println(this.getClass() + " " + String.valueOf(aObject));
     }
 
     private String quote(float x, float y, float z) {

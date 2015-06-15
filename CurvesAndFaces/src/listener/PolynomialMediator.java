@@ -113,10 +113,10 @@ public class PolynomialMediator implements KeyListener{
                 rotX -= rotFactor;
                 tmpRotX += rotFactor;
                 break;
-            case '+':
+            case '-':
                 zoom += zoomFactor;
                 break;
-            case '-':
+            case '+':
                 if(zoom > 0) zoom -= zoomFactor;
                 break;
             case '4':

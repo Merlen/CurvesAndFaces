@@ -38,9 +38,11 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
     public float rotZ = 0;
     public int zoom = 10;
 
+    public int derivate = 0;
     public float t = 0.5f;
     public float STEPS = 0.1f;
-    public boolean castel = false;
+    public boolean castel = true;
+    public boolean blossom = true;
 
     public EventMediator(GLCanvas canvas) {
         this.canvas = canvas;
@@ -54,7 +56,13 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                         "+ =\tZoom In\t- = Zoom out\n" +
                         "a = Add Point to Model \n" +
                         "e = Edit Point By ID\t \n" +
-                        "d = Delete Point By ID \n"
+                        "d = Delete Point By ID \n" +
+                        "c = deCasteljau \n" +
+                        "b = bernstein \n" +
+                        "B = Blossoms \n" +
+                        "w = Edit Point Weigth By ID\t \n"+
+                        "F1 = Increase Degree\t \n"+
+                        "F2 = Decreade Degree\t \n"
         );
     }
 
@@ -84,6 +92,12 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 rotZ = tmpRotZ;
 
                 tmpTraX = tmpTraY = tmpTraZ = tmpRotX = tmpRotY = tmpRotZ = 0;
+                break;
+            case KeyEvent.VK_F1:
+                increaseDegree();
+                break;
+            case KeyEvent.VK_F2 :
+                decreaseDegree();
                 break;
         }
         canvas.repaint();
@@ -172,10 +186,10 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 rotX -= rotFactor;
                 tmpRotX += rotFactor;
                 break;
-            case '+':
+            case '-':
                 zoom += zoomFactor;
                 break;
-            case '-':
+            case '+':
                 if (zoom > 0) zoom -= zoomFactor;
                 break;
             case 'c':
@@ -195,6 +209,9 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 break;
             case '2':
                 traY -= traFactor;
+                break;
+            case 'w':
+                editPointWeight();
                 break;
         }
         canvas.repaint();
@@ -233,6 +250,17 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         points[idx].z = user_input.nextFloat();
     }
 
+    private void editPointWeight() {
+        log("Which Point do you want to edit ?");
+        for (int i = 0; i < points.length; i++) {
+            log(i + ": Point at" + points[i]);
+        }
+        int idx = user_input.nextInt();
+
+        log("New Value for Weight: ");
+        points[idx].weigth = user_input.nextFloat();
+    }
+
     private void deletePoint() {
         for (int i = 0; i < points.length; i++) {
             log(i + ": Point at" + points[i]);
@@ -242,6 +270,14 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         int idx = user_input.nextInt();
         points = MyMath.removeElt(points, idx);
         count--;
+    }
+
+    private void increaseDegree(){
+        derivate++;
+    }
+
+    private void decreaseDegree(){
+        derivate--;
     }
 
 }

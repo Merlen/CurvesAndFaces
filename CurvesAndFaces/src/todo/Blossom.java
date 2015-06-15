@@ -13,6 +13,8 @@ import struct.Point;
  * 1. Bézier Curves 39 [ ] [ ] [ ] [ ]
  *
  * @author Merlen
+ *
+ * TODO
  */
 public class Blossom {
 

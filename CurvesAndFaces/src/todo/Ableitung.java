@@ -5,6 +5,7 @@ import struct.Point;
 /**
  *
  * @author Merlen
+ * TODO
  */
 public class Ableitung {
 

@@ -38,9 +38,9 @@ public class Bernstein {
         Point N = new Point();
         N.x = N.y = N.z = 0;
         for (int i = 0; i <= n; i++) {
-            N.x += ctrl[i].x * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i));
-            N.y += ctrl[i].y * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i));
-            N.z += ctrl[i].z * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i));
+            N.x += ctrl[i].x * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
+            N.y += ctrl[i].y * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
+            N.z += ctrl[i].z * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
         }
         return N;
     }
@@ -55,7 +55,49 @@ public class Bernstein {
         return N;
     }
 
-    private  void log(Object aObject) {
+
+    /**
+     * TODO ?
+     * Ableitung
+     * */
+    public static Point getDerivate(int derivate, float t, Point[] points){
+        int n = points.length -1;
+        if(n==0) return new Point(0,0,0);
+
+        if(derivate == 0){
+            Point N = new Point(0,0,0);
+
+            for (int i = 0; i <= n; i++) {
+                N.x += points[i].x * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * points[i].weigth;
+                N.y += points[i].y * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * points[i].weigth;
+                N.z += points[i].z * binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * points[i].weigth;
+            }
+
+            return N;
+        } else {
+            Point[] _p = new Point[points.length-1];
+
+            for (int i = 0; i < _p.length; i++) {
+
+                float x = (points[i+1].x - points[i].x) * n;
+                float y = (points[i+1].y - points[i].y) * n;
+                float z = (points[i+1].z - points[i].z) * n;
+
+                if(points[i+1].weigth > 1){
+                    log("weight > 1");
+                    x *= (points[i+1].weigth - points[i].weigth);
+                    y *= (points[i+1].weigth - points[i].weigth);
+                    z *= (points[i+1].weigth - points[i].weigth);
+                }
+
+                _p[i] = new Point(x,y,z);
+            }
+
+            return getDerivate(derivate - 1, t , _p);
+        }
+    }
+
+    private static void log(Object aObject) {
         System.out.println("Bernstein: " + " " +String.valueOf(aObject));
     }
 }

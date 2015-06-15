@@ -91,44 +91,71 @@ public class Scene implements GLEventListener {
         gl.glRotatef(listener.rotZ, 0, 0, 1);                //Rotation with angle TempRot on Z-Axis
         gl.glTranslatef(listener.traX, listener.traY, listener.traZ); //Movement on X-, Y-, Z-Axis
 
-        scaleFactor =  listener.zoom; // zoom
+        scaleFactor = listener.zoom; // zoom
         axes(gl);
         drawPointsAndLine(gl, listener.points, false);
         Point[] bez;
 
         if (listener.castel) {
-            bez = Casteljau.deCasteljau(listener.points, listener.t); // control Points
-            drawPointsAndLine(gl, bez, true);
+            if (!listener.blossom) {
+                bez = Casteljau.deCasteljau(listener.points, listener.t); // control Points
+                drawPointsAndLine(gl, bez, true);
 
-            Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f); //curve
-            drawCurve(gl, castelCurve, MyColor.AQUA);
-        } else {
+                Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f); //curve
+                drawCurve(gl, castelCurve, MyColor.AQUA);
+            } else {
+                float[] multiT = new float[2];
+                multiT[0] = 1f / 3f;
+                multiT[1] = 2f / 3f;
+                bez = Casteljau.blossom(listener.points, multiT); // control Points
+                for (Point p: bez){
+                    drawPoint(gl,p, MyColor.RED);
+                }
 
-            Point M;
-            Point P = listener.points[0];
-            for (float t = 0; t <= 1.0; t += 0.01) {
-                M = Bernstein.bernsteinCurve(listener.points, t, listener.count - 1); //curve
-                drawLine(gl, P, M, MyColor.AQUA);
-                P = M;
+                log(multiT[0] + " : " + multiT[multiT.length - 1]);
+                Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, multiT[0], multiT[multiT.length - 1]); //curve
+                drawCurve(gl, castelCurve, MyColor.AQUA);
             }
 
-           if(polynomialScene == null){
-               polynomialScene =  new PolynomialScene(listener.points, listener.t);
+        } else {
+            Point M;
+            Point P = null;
 
-           }else {
-               polynomialScene.setPoints(listener.points, listener.t);
-           }
+            if (listener.derivate >= 0) {
+                log("Draw Derivate " + listener.derivate);
+                for (float t = 0; t <= 1.0; t += 0.01) {
+                    M = Bernstein.getDerivate(listener.derivate, t, listener.points); //curve
+                    if (P != null) drawLine(gl, P, M, MyColor.AQUA);
+                    P = M;
+                }
+            } else {
+                P = listener.points[0];
+                for (float t = 0; t <= 1.0; t += 0.01) {
+                    M = Bernstein.bernsteinCurve(listener.points, t, listener.count - 1); //curve
+                    drawLine(gl, P, M, MyColor.AQUA);
+                    P = M;
+                }
+            }
+
+            if (polynomialScene == null) {
+                polynomialScene = new PolynomialScene(listener.points, listener.t);
+
+            } else {
+                polynomialScene.setPoints(listener.points, listener.t);
+            }
         }
 
         resetTransform();
     }
 
     private void resetTransform() {
-        if (polynomialScene != null && polynomialScene.closed){
+        if (polynomialScene != null && polynomialScene.closed) {
             polynomialScene = null;
         }
 
         listener.rotX = listener.rotY = listener.rotZ = listener.traX = listener.traY = listener.traZ = 0;
+
+        if (listener.derivate < 0) listener.derivate = 0;
     }
 
     /**

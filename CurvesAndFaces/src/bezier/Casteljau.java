@@ -6,11 +6,11 @@
 package bezier;
 
 import struct.Point;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- *
  * @author Merlen
  */
 public class Casteljau {
@@ -25,7 +25,7 @@ public class Casteljau {
         ArrayList<Point> pointe = new ArrayList();
         int n = points.length - 1;
         for (int i = 0; i <= n; i++) {
-            Point p = new Point(points[i].x, points[i].y, points[i].z);
+            Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
             pointList.add(i, p);
         }
         for (int k = 1; k <= n; k++) {
@@ -34,6 +34,8 @@ public class Casteljau {
                 pointList.get(i).x = castelPoint.x;
                 pointList.get(i).y = castelPoint.y;
                 pointList.get(i).z = castelPoint.z;
+                pointList.get(i).weigth = castelPoint.weigth;
+
                 pointe.add(castelPoint);
             }
         }
@@ -43,9 +45,9 @@ public class Casteljau {
     }
 
     /**
+     * @param lowT Lower Parameter
+     * @param upT  Upper Parameter
      * @return List of Points for an Curve
-     *  @param lowT Lower Parameter
-     *  @param upT Upper Parameter
      */
     public static Point[] deCasteljauCurve(Point[] points, float lowT, float upT) {
         curvePoints = new ArrayList();
@@ -61,13 +63,12 @@ public class Casteljau {
 
     /**
      * Get a Point of Casteljau
-     *
      */
     private static Point getCasteljauPoint(float t, ArrayList<Point> ctrlPoints) {
         tempPoints.clear();
         int n = ctrlPoints.size() - 1;
         for (int i = 0; i <= n; i++) {
-            Point p = new Point(ctrlPoints.get(i).x, ctrlPoints.get(i).y, ctrlPoints.get(i).z);
+            Point p = new Point(ctrlPoints.get(i).x, ctrlPoints.get(i).y, ctrlPoints.get(i).z, ctrlPoints.get(i).weigth);
             tempPoints.add(i, p);
         }
         for (int k = 1; k <= n; k++) {
@@ -76,6 +77,7 @@ public class Casteljau {
                 tempPoints.get(i).x = castelPoint.x;
                 tempPoints.get(i).y = castelPoint.y;
                 tempPoints.get(i).z = castelPoint.z;
+                tempPoints.get(i).weigth = castelPoint.weigth;
             }
         }
         return tempPoints.get(0);
@@ -86,10 +88,49 @@ public class Casteljau {
      */
     public static Point getCasteljauPoint(Point a, Point b, float t) {
         Point ler = new Point();
-        ler.x = (1 - t) * a.x + t * b.x;
-        ler.y = (1 - t) * a.y + t * b.y;
-        ler.z = (1 - t) * a.z + t * b.z;
+
+        ler.x = (1 - t) * a.x * a.weigth + t * b.x * b.weigth;
+        ler.y = (1 - t) * a.y * a.weigth + t * b.y * b.weigth;
+        ler.z = (1 - t) * a.z * a.weigth + t * b.z * b.weigth;
         return ler;
     }
 
+    /**
+     * TODO
+     *
+     * @param points
+     * @param multiT
+     * @return
+     */
+    public static Point[] blossom(Point[] points, float[] multiT) {
+        int n = points.length - 1;
+        ArrayList<Point> pointArrayList = new ArrayList();
+        ArrayList<Point> cpyPoint = new ArrayList();
+        cpyPoint.addAll(Arrays.asList(points));
+
+
+
+
+        Point[] ctrl = new Point[pointArrayList.size()];
+        pointArrayList.toArray(ctrl);
+
+        return ctrl;
+    }
+/**
+ * TODO
+ * Ableitung
+ public static Point getDerivate(int derivate, float t, Point[] points) {
+ int n = points.length - 1;
+ if (n == 0) return new Point(0, 0, 0);
+
+ if(derivate == 0){
+ Point N = new Point();
+
+ for
+ }
+
+ return getDerivate(derivate - 1, t, points);
+ }*/
 }
+
+

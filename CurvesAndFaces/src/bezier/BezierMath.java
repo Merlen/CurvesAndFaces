@@ -24,10 +24,6 @@ public class BezierMath {
                     newPoints[i] = oldPoints[(i)].times(calc2).plus(oldPoints[(i - 1)].times(calc1));
             }
         }
-
-        for (int i = 0; i < newPoints.length; i++) {
-            log(i + ": " + newPoints[i]);
-        }
         return newPoints;
     }
 

@@ -30,7 +30,7 @@ public class Casteljau {
         }
         for (int k = 1; k <= n; k++) {
             for (int i = 0; i <= n - k; i++) {
-                Point castelPoint = DeCasteljau(k, i, t, points);
+                Point castelPoint = getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t);
                 pointList.get(i).set(castelPoint);
                 pointe.add(castelPoint);
             }
@@ -88,6 +88,9 @@ public class Casteljau {
         return ler;
     }
 
+    /**
+     *  DeCasteljau rekursiv Version
+     **/
     public static Point DeCasteljau(int k, int i, float t, Point[] P) {
         if (k == 0)
             return P[i];

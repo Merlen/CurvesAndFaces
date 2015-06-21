@@ -44,12 +44,23 @@ public final class Point {
     }
 
 
+    public Point plus(Point p){
+        return new Point(x + p.x, y + p.y, z + p.z);
+    }
     public Point times (float n){
         Point sum = new Point();
         sum.x = x * n;
         sum.y = y * n;
         sum.z = z * n;
         return sum;
+    }
+
+    public Point delta(Point p){
+     Point delta = new Point();
+        delta.x = p.x - x;
+        delta.y = p.y - y;
+        delta.z = p.z - z;
+        return delta;
     }
 
     public float scalar(float alpha) {
@@ -101,6 +112,12 @@ public final class Point {
         return sum;
     }
 
+    public void set(Point p){
+        this.x = p.x;
+        this.y = p.y;
+        this.z = p.z;
+        this.weigth = p.weigth;
+    }
 /*
     public Vector minus(Point p) {
         Vector sum = new Vector();

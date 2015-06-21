@@ -1,10 +1,13 @@
 package scene;
 
 import bezier.Bernstein;
+import bezier.BezierMath;
 import bezier.Casteljau;
 import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import help.Constants;
 import help.MyColor;
 import help.MyMath;
 import listener.EventMediator;
@@ -51,9 +54,6 @@ public class Scene implements GLEventListener {
         listener = new EventMediator(canvas);
 
         canvas.addKeyListener(listener);
-        canvas.addMouseListener(listener);
-        canvas.addMouseMotionListener(listener);
-
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -86,66 +86,90 @@ public class Scene implements GLEventListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glPointSize(pointSize);
 
-        gl.glRotatef(listener.rotX, 1, 0, 0);                //Rotation with angle TempRot on X-Axis
-        gl.glRotatef(listener.rotY, 0, 1, 0);                //Rotation with angle TempRot on Y-Axis
-        gl.glRotatef(listener.rotZ, 0, 0, 1);                //Rotation with angle TempRot on Z-Axis
-        gl.glTranslatef(listener.traX, listener.traY, listener.traZ); //Movement on X-, Y-, Z-Axis
+        gl.glRotatef(Constants.rotX, 1, 0, 0);                //Rotation with angle TempRot on X-Axis
+        gl.glRotatef(Constants.rotY, 0, 1, 0);                //Rotation with angle TempRot on Y-Axis
+        gl.glRotatef(Constants.rotZ, 0, 0, 1);                //Rotation with angle TempRot on Z-Axis
+        gl.glTranslatef(Constants.traX, Constants.traY, Constants.traZ); //Movement on X-, Y-, Z-Axis
 
-        scaleFactor = listener.zoom; // zoom
+        scaleFactor = Constants.zoom; // zoom
         axes(gl);
-        drawPointsAndLine(gl, listener.points, false);
-        Point[] bez;
+        drawPointsAndLine(gl, Constants.points, false);
 
-        if (listener.castel) {
-            if (!listener.blossom) {
-                bez = Casteljau.deCasteljau(listener.points, listener.t); // control Points
-                drawPointsAndLine(gl, bez, true);
-
-                Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, -1f, 2f); //curve
-                drawCurve(gl, castelCurve, MyColor.AQUA);
-            } else {
-                float[] multiT = new float[2];
-                multiT[0] = 1f / 3f;
-                multiT[1] = 2f / 3f;
-                bez = Casteljau.blossom(listener.points, multiT); // control Points
-                for (Point p: bez){
-                    drawPoint(gl,p, MyColor.RED);
-                }
-
-                log(multiT[0] + " : " + multiT[multiT.length - 1]);
-                Point[] castelCurve = Casteljau.deCasteljauCurve(listener.points, multiT[0], multiT[multiT.length - 1]); //curve
-                drawCurve(gl, castelCurve, MyColor.AQUA);
-            }
-
+        if (Constants.incPoints) {
+            Constants.points = BezierMath.DegreeInc(Constants.points);
+            Constants.count = Constants.count + 1;
+        }
+        if (Constants.castel) {
+            Casteljau(gl);
         } else {
-            Point M;
-            Point P = null;
-
-            if (listener.derivate >= 0) {
-                log("Draw Derivate " + listener.derivate);
-                for (float t = 0; t <= 1.0; t += 0.01) {
-                    M = Bernstein.getDerivate(listener.derivate, t, listener.points); //curve
-                    if (P != null) drawLine(gl, P, M, MyColor.AQUA);
-                    P = M;
-                }
-            } else {
-                P = listener.points[0];
-                for (float t = 0; t <= 1.0; t += 0.01) {
-                    M = Bernstein.bernsteinCurve(listener.points, t, listener.count - 1); //curve
-                    drawLine(gl, P, M, MyColor.AQUA);
-                    P = M;
-                }
-            }
-
-            if (polynomialScene == null) {
-                polynomialScene = new PolynomialScene(listener.points, listener.t);
-
-            } else {
-                polynomialScene.setPoints(listener.points, listener.t);
-            }
+            Bernstein(gl);
         }
 
         resetTransform();
+    }
+
+    private void Casteljau(GL2 gl) {
+        Point[] bez;
+
+        if (!Constants.blossom) {
+            bez = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
+            log("PRE " + Constants.points.length + " " + bez.length);
+            drawPointsAndLine(gl, bez, true);
+
+            Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, -1f, 2f); //curve
+            drawCurve(gl, castelCurve, MyColor.AQUA);
+        } else {
+            Constants.firstT = 1f / 5f;
+            Constants.secondT = 4f / 5f;
+
+            float[] multiT = new float[2];
+            multiT[0] = Constants.firstT;
+            multiT[1] = Constants.secondT;
+            bez = Casteljau.blossom(Constants.points, multiT); // control Points
+
+            log("PRE Blossom " + Constants.points.length + " " + bez.length);
+            drawPointsAndLine(gl, bez, false);
+
+            for (Point p : bez) drawPoint(gl, p, MyColor.RED);
+
+            Point[] castelCurve1 = Casteljau.deCasteljauCurve(Constants.points, 0, Constants.firstT);
+            drawCurve(gl, castelCurve1, MyColor.GREEN);
+
+            Point[] castelCurve2 = Casteljau.deCasteljauCurve(Constants.points, Constants.firstT, Constants.secondT); //curve
+            drawCurve(gl, castelCurve2, MyColor.AQUA);
+
+            Point[] castelCurve3 = Casteljau.deCasteljauCurve(Constants.points, Constants.secondT, 1); //curve
+            drawCurve(gl, castelCurve3, MyColor.YELLOW);
+        }
+    }
+
+    private void Bernstein(GL2 gl) {
+        Point M;
+        Point P = null;
+
+        if (Constants.derivate >= 0) {
+            log("Draw Derivate " + Constants.derivate);
+            M = Bernstein.getDerivate(Constants.derivate, Constants.t, Constants.points);
+
+            drawPoint(gl, Bernstein.getDerivate(Constants.derivate, Constants.t, Constants.points), MyColor.YELLOW); //curve
+
+        }
+
+        P = Constants.points[0];
+        for (float t = 0; t <= 1.0; t += 0.01) {
+            M = Bernstein.bernsteinCurve(Constants.points, t, Constants.count - 1); //curve
+            drawLine(gl, P, M, MyColor.AQUA);
+            P = M;
+
+        }
+
+        if (polynomialScene == null) {
+            polynomialScene = new PolynomialScene(Constants.points, Constants.t);
+
+        } else {
+            polynomialScene.setPoints(Constants.points, Constants.t);
+        }
+
     }
 
     private void resetTransform() {
@@ -153,9 +177,9 @@ public class Scene implements GLEventListener {
             polynomialScene = null;
         }
 
-        listener.rotX = listener.rotY = listener.rotZ = listener.traX = listener.traY = listener.traZ = 0;
-
-        if (listener.derivate < 0) listener.derivate = 0;
+        Constants.rotX = Constants.rotY = Constants.rotZ = Constants.traX = Constants.traY = Constants.traZ = 0;
+        Constants.incPoints = false;
+        if (Constants.derivate < 0) Constants.derivate = 0;
     }
 
     /**
@@ -180,10 +204,10 @@ public class Scene implements GLEventListener {
     public void setPoints(List<Point> points) {
         for (Point point : points) {
             plaPts = help.MyMath.copyPointArray(plaPts);
-            plaPts[listener.count] = new Point(point.x, point.y, point.z);
-            listener.count++;
+            plaPts[Constants.count] = new Point(point.x, point.y, point.z);
+            Constants.count = Constants.count + 1;
         }
-        listener.points = plaPts;
+        Constants.points = plaPts;
     }
 
     /**
@@ -265,7 +289,8 @@ public class Scene implements GLEventListener {
                 drawPoint(gl, list[i + 1], MyColor.BLUE);
             }
         } else {
-            drawControlPoints(gl, list, listener.count);
+            log("POST " + Constants.count + " " + list.length);
+            drawControlPoints(gl, list, Constants.count);
         }
 
     }
@@ -274,7 +299,9 @@ public class Scene implements GLEventListener {
      * Draw ControlPoints with Lines
      */
     void drawControlPoints(GL2 gl, Point[] list, int length) {
+
         Point[] tmp = list;
+        log(tmp.length + " le " + length);
         int counter = 1;
         if (length > 2) {
             while (counter < (length - 1)) {

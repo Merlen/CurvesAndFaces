@@ -30,12 +30,8 @@ public class Casteljau {
         }
         for (int k = 1; k <= n; k++) {
             for (int i = 0; i <= n - k; i++) {
-                Point castelPoint = getCasteljauPoint(pointList.get(i), pointList.get(i + 1), t);
-                pointList.get(i).x = castelPoint.x;
-                pointList.get(i).y = castelPoint.y;
-                pointList.get(i).z = castelPoint.z;
-                pointList.get(i).weigth = castelPoint.weigth;
-
+                Point castelPoint = DeCasteljau(k, i, t, points);
+                pointList.get(i).set(castelPoint);
                 pointe.add(castelPoint);
             }
         }
@@ -74,10 +70,7 @@ public class Casteljau {
         for (int k = 1; k <= n; k++) {
             for (int i = 0; i <= n - k; i++) {
                 Point castelPoint = getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t);
-                tempPoints.get(i).x = castelPoint.x;
-                tempPoints.get(i).y = castelPoint.y;
-                tempPoints.get(i).z = castelPoint.z;
-                tempPoints.get(i).weigth = castelPoint.weigth;
+                tempPoints.get(i).set(castelPoint);
             }
         }
         return tempPoints.get(0);
@@ -95,6 +88,12 @@ public class Casteljau {
         return ler;
     }
 
+    public static Point DeCasteljau(int k, int i, float t, Point[] P) {
+        if (k == 0)
+            return P[i];
+        return DeCasteljau(k - 1, i, t, P).times((1 - t)).plus(DeCasteljau(k - 1, i + 1, t, P).times(t));
+    }
+
     /**
      * TODO
      *
@@ -104,33 +103,66 @@ public class Casteljau {
      */
     public static Point[] blossom(Point[] points, float[] multiT) {
         int n = points.length - 1;
-        ArrayList<Point> pointArrayList = new ArrayList();
-        ArrayList<Point> cpyPoint = new ArrayList();
-        cpyPoint.addAll(Arrays.asList(points));
 
+        float t1 = multiT[0];
+        float t2 = multiT[1];
 
+        log(t1 + " " + t2);
+        Point a = points[0];
+        Point b = points[1];
+        Point c = points[2];
+        Point d = points[3];
 
+        Point[] ctrl = new Point[points.length];
 
-        Point[] ctrl = new Point[pointArrayList.size()];
-        pointArrayList.toArray(ctrl);
+        Point aaa = new Point(0, 0, 0);
+        aaa.x = a.x + (b.x / n) * (t1 * t1 * t1) + (c.x / n) * (t1 * t1 + t1 * t1 + t1 * t1) + d.x * t1 * t1 * t1;
+        aaa.y = a.y + (b.y / n) * (t1 * t1 * t1) + (c.y / n) * (t1 * t1 + t1 * t1 + t1 * t1) + d.y * t1 * t1 * t1;
+        aaa.z = a.z + (b.z / n) * (t1 * t1 * t1) + (c.z / n) * (t1 * t1 + t1 * t1 + t1 * t1) + d.z * t1 * t1 * t1;
 
+        Point aab = new Point(0, 0, 0);
+        aab.x = a.x + (b.x / n) * (t1 * t1 * t2) + (c.x / n) * (t1 * t1 + t1 * t2 + t1 * t2) + d.x * t1 * t1 * t2;
+        aab.y = a.y + (b.y / n) * (t1 * t1 * t2) + (c.y / n) * (t1 * t1 + t1 * t2 + t1 * t2) + d.y * t1 * t1 * t2;
+        aab.z = a.z + (b.z / n) * (t1 * t1 * t2) + (c.z / n) * (t1 * t1 + t1 * t2 + t1 * t2) + d.z * t1 * t1 * t2;
+
+        Point abb = new Point(0, 0, 0);
+        abb.x = a.x + (b.x / n) * (t1 * t2 * t2) + (c.x / n) * (t1 * t2 + t1 * t2 + t2 * t2) + d.x * t1 * t2 * t2;
+        abb.y = a.y + (b.y / n) * (t1 * t2 * t2) + (c.y / n) * (t1 * t2 + t1 * t2 + t2 * t2) + d.y * t1 * t2 * t2;
+        abb.z = a.z + (b.z / n) * (t1 * t2 * t2) + (c.z / n) * (t1 * t2 + t1 * t2 + t2 * t2) + d.z * t1 * t2 * t2;
+
+        Point bbb = new Point(0, 0, 0);
+        bbb.x = a.x + (b.x / n) * (t2 * t2 * t2) + (c.x / n) * (t2 * t2 + t2 * t2 + t2 * t2) + d.x * t2 * t2 * t2;
+        bbb.y = a.y + (b.y / n) * (t2 * t2 * t2) + (c.y / n) * (t2 * t2 + t2 * t2 + t2 * t2) + d.y * t2 * t2 * t2;
+        bbb.z = a.z + (b.z / n) * (t2 * t2 * t2) + (c.z / n) * (t2 * t2 + t2 * t2 + t2 * t2) + d.z * t2 * t2 * t2;
+
+        ctrl[0] = aaa;
+        ctrl[1] = aab;
+        ctrl[2] = abb;
+        ctrl[3] = bbb;
+
+        for (Point p:ctrl) log(p);
         return ctrl;
     }
-/**
- * TODO
- * Ableitung
- public static Point getDerivate(int derivate, float t, Point[] points) {
- int n = points.length - 1;
- if (n == 0) return new Point(0, 0, 0);
 
- if(derivate == 0){
- Point N = new Point();
+    /**
+     * TODO
+     * Ableitung
+     */
+    public static Point getDerivate(int derivate, float t, Point[] points) {
+        int n = points.length - 1;
+        if (n == 0) return new Point(0, 0, 0);
 
- for
- }
 
- return getDerivate(derivate - 1, t, points);
- }*/
+        return getDerivate(derivate - 1, t, points);
+    }
+
+
+    /**
+     * Prints Information
+     */
+    private static void log(Object aObject) {
+        System.out.println("Casteljau" + " " + String.valueOf(aObject));
+    }
 }
 
 

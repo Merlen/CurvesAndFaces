@@ -1,24 +1,19 @@
 package listener;
 
+import help.Constants;
 import help.MyMath;
 import struct.Point;
 import com.jogamp.opengl.awt.GLCanvas;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.Scanner;
 
 /**
  * @author Merlen
  */
-public class EventMediator implements KeyListener, MouseListener, MouseMotionListener {
+public class EventMediator implements KeyListener {
 
-    private final float rotFactor = 1;
-    private final float traFactor = 0.01f;
-    private final int zoomFactor = 1;
     private final Scanner user_input = new Scanner(System.in);
     private GLCanvas canvas;
     private float tmpTraX;
@@ -27,22 +22,6 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
     private float tmpRotX;
     private float tmpRotY;
     private float tmpRotZ;
-
-    public Point[] points;
-    public int count = 0;
-    public float traX = 0;
-    public float traY = 0;
-    public float traZ = 0;
-    public float rotX = 0;
-    public float rotY = 0;
-    public float rotZ = 0;
-    public int zoom = 10;
-
-    public int derivate = 0;
-    public float t = 0.5f;
-    public float STEPS = 0.1f;
-    public boolean castel = true;
-    public boolean blossom = true;
 
     public EventMediator(GLCanvas canvas) {
         this.canvas = canvas;
@@ -61,8 +40,9 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                         "b = bernstein \n" +
                         "B = Blossoms \n" +
                         "w = Edit Point Weigth By ID\t \n"+
-                        "F1 = Increase Degree\t \n"+
-                        "F2 = Decreade Degree\t \n"
+                        "F1 = Increase Derivate\t \n"+
+                        "F2 = Decreade Derivate\t \n"+
+                        "F3 = Increase Points\t \n"
         );
     }
 
@@ -73,34 +53,41 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         switch (key) {
 
             case KeyEvent.VK_LEFT:
-                t -= STEPS;
+                Constants.t = Constants.t - Constants.STEPS;
                 break;
             case KeyEvent.VK_RIGHT:
-                t += STEPS;
+                Constants.t = Constants.t + Constants.STEPS;
                 break;
             case KeyEvent.VK_DOWN:
                 break;
             case KeyEvent.VK_UP:
                 break;
             case KeyEvent.VK_ALT:
-                traX = tmpTraX;
-                traY = tmpTraY;
-                traZ = tmpTraZ;
+                Constants.traX = tmpTraX;
+                Constants.traY = tmpTraY;
+                Constants.traZ = tmpTraZ;
 
-                rotX = tmpRotX;
-                rotY = tmpRotY;
-                rotZ = tmpRotZ;
+                Constants.rotX = tmpRotX;
+                Constants.rotY = tmpRotY;
+                Constants.rotZ = tmpRotZ;
 
                 tmpTraX = tmpTraY = tmpTraZ = tmpRotX = tmpRotY = tmpRotZ = 0;
                 break;
             case KeyEvent.VK_F1:
-                increaseDegree();
+                increaseDerivate();
                 break;
             case KeyEvent.VK_F2 :
-                decreaseDegree();
+                decreaseDerivate();
+                break;
+            case KeyEvent.VK_F3:
+                increasePoints();
                 break;
         }
         canvas.repaint();
+    }
+
+    private void increasePoints() {
+        Constants.incPoints = true;
     }
 
     // Redisplay must be called if no animator is used.
@@ -112,34 +99,6 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
 
     @Override
     public void keyReleased(KeyEvent e) {
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
     }
 
     /*Function to use Keys in ANSI Format
@@ -163,56 +122,58 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
                 deletePoint();
                 break;
             case 'z':
-                rotZ += rotFactor;
-                tmpRotZ -= rotFactor;
+                Constants.rotZ = Constants.rotZ + Constants.rotFactor;
+                tmpRotZ -= Constants.rotFactor;
                 break;
             case 'y':
-                rotY += rotFactor;
-                tmpRotY -= rotFactor;
+                Constants.rotY = Constants.rotY + Constants.rotFactor;
+                tmpRotY -= Constants.rotFactor;
                 break;
             case 'x':
-                rotX += rotFactor;
-                tmpRotX -= rotFactor;
+                Constants.rotX = Constants.rotX + Constants.rotFactor;
+                tmpRotX -= Constants.rotFactor;
                 break;
             case 'Z':
-                rotZ -= rotFactor;
-                tmpRotZ += rotFactor;
+                Constants.rotZ = Constants.rotZ - Constants.rotFactor;
+                tmpRotZ += Constants.rotFactor;
                 break;
             case 'Y':
-                rotY -= rotFactor;
-                tmpRotY += rotFactor;
+                Constants.rotY = Constants.rotY - Constants.rotFactor;
+                tmpRotY += Constants.rotFactor;
                 break;
             case 'X':
-                rotX -= rotFactor;
-                tmpRotX += rotFactor;
+                Constants.rotX = Constants.rotX - Constants.rotFactor;
+                tmpRotX += Constants.rotFactor;
                 break;
             case '-':
-                zoom += zoomFactor;
+                Constants.zoom = Constants.zoom + Constants.zoomFactor;
                 break;
             case '+':
-                if (zoom > 0) zoom -= zoomFactor;
+                if (Constants.zoom > 0) Constants.zoom = Constants.zoom - Constants.zoomFactor;
                 break;
             case 'c':
-                castel = true;
+                Constants.castel = true;
                 break;
             case 'b':
-                castel = false;
+                Constants.castel = false;
                 break;
             case '4':
-                traX -= traFactor;
+                Constants.traX = Constants.traX - Constants.traFactor;
                 break;
             case '6':
-                traX += traFactor;
+                Constants.traX = Constants.traX + Constants.traFactor;
                 break;
             case '8':
-                traY += traFactor;
+                Constants.traY = Constants.traY + Constants.traFactor;
                 break;
             case '2':
-                traY -= traFactor;
+                Constants.traY = Constants.traY - Constants.traFactor;
                 break;
             case 'w':
                 editPointWeight();
                 break;
+            case 'B':
+                Constants.blossom = !Constants.blossom;
         }
         canvas.repaint();
     }
@@ -229,55 +190,55 @@ public class EventMediator implements KeyListener, MouseListener, MouseMotionLis
         log("Value for z: ");
         float z = user_input.nextFloat();
 
-        points = help.MyMath.copyPointArray(points);
-        points[count] = new Point(x, y, z);
-        count++;
+        Constants.points = MyMath.copyPointArray(Constants.points);
+        Constants.points[Constants.count] = new Point(x, y, z);
+        Constants.count = Constants.count + 1;
 
     }
 
     private void editPoint() {
         log("Which Point do you want to edit ?");
-        for (int i = 0; i < points.length; i++) {
-            log(i + ": Point at" + points[i]);
+        for (int i = 0; i < Constants.points.length; i++) {
+            log(i + ": Point at" + Constants.points[i]);
         }
         int idx = user_input.nextInt();
 
         log("New Value for x: ");
-        points[idx].x = user_input.nextFloat();
+        Constants.points[idx].x = user_input.nextFloat();
         log("New Value for y: ");
-        points[idx].y = user_input.nextFloat();
+        Constants.points[idx].y = user_input.nextFloat();
         log("New Value for z: ");
-        points[idx].z = user_input.nextFloat();
+        Constants.points[idx].z = user_input.nextFloat();
     }
 
     private void editPointWeight() {
         log("Which Point do you want to edit ?");
-        for (int i = 0; i < points.length; i++) {
-            log(i + ": Point at" + points[i]);
+        for (int i = 0; i < Constants.points.length; i++) {
+            log(i + ": Point at" + Constants.points[i]);
         }
         int idx = user_input.nextInt();
 
         log("New Value for Weight: ");
-        points[idx].weigth = user_input.nextFloat();
+        Constants.points[idx].weigth = user_input.nextFloat();
     }
 
     private void deletePoint() {
-        for (int i = 0; i < points.length; i++) {
-            log(i + ": Point at" + points[i]);
+        for (int i = 0; i < Constants.points.length; i++) {
+            log(i + ": Point at" + Constants.points[i]);
         }
 
         log("Which Point do you want to delete ?");
         int idx = user_input.nextInt();
-        points = MyMath.removeElt(points, idx);
-        count--;
+        Constants.points = MyMath.removeElt(Constants.points, idx);
+        Constants.count = Constants.count - 1;
     }
 
-    private void increaseDegree(){
-        derivate++;
+    private void increaseDerivate(){
+        Constants.derivate = Constants.derivate + 1;
     }
 
-    private void decreaseDegree(){
-        derivate--;
+    private void decreaseDerivate(){
+        Constants.derivate = Constants.derivate - 1;
     }
 
 }

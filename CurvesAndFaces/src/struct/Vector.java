@@ -53,7 +53,7 @@ public class Vector {
         c.x = y * that.z - z * that.y;
         c.y = z * that.x - x * that.z;
         c.z = x * that.y - y * that.x;
-        c.w = 0; //epsilon check TODO
+        c.w = 0; //epsilon check
         return c;
     }
 

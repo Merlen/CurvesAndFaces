@@ -1,4 +1,4 @@
-package bezier;
+package bezier.curves;
 
 import help.MyMath;
 import struct.Point;

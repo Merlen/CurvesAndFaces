@@ -1,9 +1,9 @@
 package listener;
 
+import com.jogamp.opengl.awt.GLCanvas;
 import help.Constants;
 import help.MyMath;
 import struct.Point;
-import com.jogamp.opengl.awt.GLCanvas;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -58,7 +58,6 @@ public class EventMediator implements KeyListener {
 
         int key = e.getKeyCode();  // Tells which key was pressed.
         switch (key) {
-
             case KeyEvent.VK_LEFT:
                 Constants.t = Constants.t - Constants.STEPS;
                 break;
@@ -185,10 +184,19 @@ public class EventMediator implements KeyListener {
     }
 
     private void blossoming() {
+
         log("Value for t1: ");
         float t1 = user_input.nextFloat();
         log("Value for t2: ");
         float t2 = user_input.nextFloat();
+
+        while (t1 >= t2) {
+            log("t2 must be higher than t1: " + t1 + " > " + t2);
+            log("Value for t1: ");
+            t1 = user_input.nextFloat();
+            log("Value for t2: ");
+            t2 = user_input.nextFloat();
+        }
 
         Constants.firstT = t1;
         Constants.secondT = t2;

@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package bezier;
+package bezier.curves;
 
 import help.Constants;
 import struct.Point;
@@ -15,14 +10,14 @@ import java.util.Arrays;
  * @author Merlen
  */
 public class Casteljau {
-    private static ArrayList<Point> tempPoints = new ArrayList();
+    private static ArrayList<Point> tempPoints = new ArrayList<>();
 
     /**
      * DeCasteljau Formula for ControlPoints
      */
     public static Point[] deCasteljau(Point[] points, float t) {
         tempPoints.clear();
-        ArrayList<Point> pointe = new ArrayList();
+        ArrayList<Point> pointe = new ArrayList<>();
         int n = points.length - 1;
         for (int i = 0; i <= n; i++) {
             Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
@@ -49,8 +44,8 @@ public class Casteljau {
      * @return List of Points for an Curve
      */
     public static Point[] deCasteljauCurve(Point[] points, float lowT, float upT) {
-        ArrayList<Point> curvePoints = new ArrayList();
-        ArrayList<Point> cpyPoint = new ArrayList();
+        ArrayList<Point> curvePoints = new ArrayList<>();
+        ArrayList<Point> cpyPoint = new ArrayList<>();
         cpyPoint.addAll(Arrays.asList(points));
         for (float i = lowT; i < upT; i += 0.02) {
             curvePoints.add(getCasteljauPoint(i, cpyPoint));
@@ -93,12 +88,44 @@ public class Casteljau {
 
     /**
      * DeCasteljau rekursiv Version
-     * @deprecated
      **/
-    public static Point deCasteljau(int k, int i, float t, Point[] P) {
+    public static Point DeCasteljau(int k, int i, float t, Point[] P) {
         if (k == 0)
             return P[i];
-        return deCasteljau(k - 1, i, t, P).times((1 - t)).plus(deCasteljau(k - 1, i + 1, t, P).times(t));
+        return DeCasteljau(k - 1, i, t, P).times((1 - t)).plus(DeCasteljau(k - 1, i + 1, t, P).times(t));
+    }
+
+    /**
+     * TODO
+     * Not Implemented Yet
+     */
+    public static Point[] blossom(Point[] points, float[] multiT) {
+        int n = points.length - 1;
+
+        float a = multiT[0];
+        float b = multiT[1];
+
+        Point[] aHalf = Casteljau.deCasteljau(Constants.points, a); // control Points
+        Point[] bHalf = Casteljau.deCasteljau(Constants.points, b); // control Points
+
+
+        log(aHalf.length + " " + bHalf.length);
+
+        Point[] blossom = new Point[2];
+
+        blossom[0] = aHalf[aHalf.length - 1];
+        blossom[1] = bHalf[bHalf.length - 1];
+
+
+        return blossom;
+    }
+
+
+    //TODO
+    private static Point getBlossomVal(Point a, Point b) {
+        Point blos = new Point();
+
+        return blos;
     }
 
 

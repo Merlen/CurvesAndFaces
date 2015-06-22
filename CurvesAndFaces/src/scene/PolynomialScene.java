@@ -1,10 +1,9 @@
 package scene;
 
-import bezier.Bernstein;
+import bezier.curves.Bernstein;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import help.MyColor;
-
 import listener.PolynomialMediator;
 import struct.Point;
 
@@ -17,13 +16,13 @@ import java.awt.event.WindowEvent;
  */
 class PolynomialScene implements GLEventListener {
 
+    GLCanvas canvas;
+    boolean closed = true;
     private PolynomialMediator listener;
     private Point[] plaPts = new Point[0];
     private float t = 1;
     private float pointSize = 10;
     private int scaleFactor = 1;
-    GLCanvas canvas;
-    boolean closed = true;
 
 
     PolynomialScene(Point[] points, float t) {
@@ -100,9 +99,7 @@ class PolynomialScene implements GLEventListener {
         Point P;
 
         for (int i = 0; i < plaPts.length; i++) {
-            M = null;
             P = null;
-
 
             for (float t = 0; t <= 1.0; t += 0.01) {
                 M = Bernstein.bernsteinPolynomial(i, plaPts.length - 1, t);

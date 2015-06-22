@@ -2,9 +2,6 @@ package bezier;
 
 import struct.Point;
 
-/**
- * Created by Merlen on 21.06.2015.
- */
 public class BezierMath {
 
     public static Point[] DegreeInc(Point[] oldPoints) {

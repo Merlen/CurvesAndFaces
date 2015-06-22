@@ -1,8 +1,9 @@
 package scene;
 
-import bezier.Bernstein;
 import bezier.BezierMath;
-import bezier.Casteljau;
+import bezier.curves.Bernstein;
+import bezier.curves.Casteljau;
+import bezier.curves.Derivate;
 import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -12,7 +13,6 @@ import help.MyMath;
 import listener.EventMediator;
 import struct.Point;
 import struct.Vector;
-import bezier.Derivate;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -26,12 +26,11 @@ import java.util.List;
  */
 public class Scene implements GLEventListener {
 
-    Point[] plaPts = new Point[0];
-    private float pointSize = 10;
-    int scaleFactor = 10;
-    private PolynomialScene polynomialScene;
-
     private static EventMediator listener;
+    Point[] plaPts = new Point[0];
+    int scaleFactor = 10;
+    private float pointSize = 10;
+    private PolynomialScene polynomialScene;
 
     public static void main(String[] args) {
         GLProfile glp = GLProfile.getDefault();
@@ -153,7 +152,7 @@ public class Scene implements GLEventListener {
     private void Bernstein(GL2 gl) {
         log("Bernstein Building");
         Point M;
-        Point P = null;
+        Point P;
 
         drawDerivate(gl);
 
@@ -242,7 +241,7 @@ public class Scene implements GLEventListener {
     }
 
     void drawDerivate(GL2 gl) {
-        Vector v = new Vector();
+        Vector v;
 
         if (Constants.derivate > 0) {
             Vector pointT;

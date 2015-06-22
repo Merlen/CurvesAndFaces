@@ -1,15 +1,9 @@
 package listener;
 
-import help.MyMath;
-import struct.Point;
 import com.jogamp.opengl.awt.GLCanvas;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.Scanner;
 
 /**
  * @author Merlen
@@ -19,14 +13,6 @@ public class PolynomialMediator implements KeyListener{
     private final float rotFactor = 1;
     private final float traFactor = 0.01f;
     private final int zoomFactor = 1;
-    private GLCanvas canvas;
-    private float tmpTraX;
-    private float tmpTraY;
-    private float tmpTraZ;
-    private float tmpRotX;
-    private float tmpRotY;
-    private float tmpRotZ;
-
     public float traX = 0;
     public float traY = 0;
     public float traZ = 0;
@@ -34,9 +20,15 @@ public class PolynomialMediator implements KeyListener{
     public float rotY = 0;
     public float rotZ = 0;
     public int zoom = 10;
-
     public float t = 0.5f;
     public float STEPS = 0.1f;
+    private GLCanvas canvas;
+    private float tmpTraX;
+    private float tmpTraY;
+    private float tmpTraZ;
+    private float tmpRotX;
+    private float tmpRotY;
+    private float tmpRotZ;
     public PolynomialMediator(GLCanvas canvas) {
         this.canvas = canvas;
     }

@@ -1,10 +1,7 @@
-package bezier;
+package bezier.curves;
 
 import help.MyMath;
 import struct.Point;
-import struct.Vector;
-
-import java.util.ArrayList;
 
 /**
  * @author Merlen
@@ -32,9 +29,6 @@ public class Bernstein {
 
         return N;
     }
-
-
-
 
     private static void log(Object aObject) {
         System.out.println("Bernstein: " + " " +String.valueOf(aObject));

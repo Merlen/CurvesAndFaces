@@ -116,6 +116,7 @@ public class Scene implements GLEventListener {
     }
 
     private void blossom(GL2 gl) {
+        log("Blossom Building");
         Point[] ctrlPoints;
 
         float[] multiT = new float[2];
@@ -135,12 +136,14 @@ public class Scene implements GLEventListener {
     }
 
     private void Casteljau(GL2 gl) {
+        log("DeCasteljau Building");
+
         Point[] ctrlPoints;
         drawDerivate(gl);
 
         if (!Constants.blossom) {
             ctrlPoints = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
-            drawPointsAndLine(gl, ctrlPoints, true);
+            if(Constants.showControl) drawPointsAndLine(gl, ctrlPoints, true);
 
             Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, -1f, 2f); //curve
             drawCurve(gl, castelCurve, MyColor.AQUA);
@@ -148,6 +151,7 @@ public class Scene implements GLEventListener {
     }
 
     private void Bernstein(GL2 gl) {
+        log("Bernstein Building");
         Point M;
         Point P = null;
 

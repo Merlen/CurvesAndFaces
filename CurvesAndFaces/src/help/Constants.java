@@ -21,6 +21,7 @@ public class Constants {
     public static boolean castel = true;
     public static boolean blossom = false;
     public static boolean incPoints = false;
+    public static boolean showControl = false;
 
     public static float firstT = 0;
     public static float secondT = 1;

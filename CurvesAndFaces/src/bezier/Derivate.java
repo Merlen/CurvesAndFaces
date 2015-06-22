@@ -13,6 +13,7 @@ public class Derivate {
 
     /**
      * Not Implemented Yet
+     * @deprecated
      * */
     public static Vector getCasteljauDerivate(int derivate, float t, Point[] points) {
         int n = points.length - 1;
@@ -53,9 +54,9 @@ public class Derivate {
         } else {
             Point[] _p = new Point[points.length - 1];
             for (int i = 0; i < _p.length; i++) {
-                float x = (points[i + 1].x - points[i].x) * n ;
-                float y = (points[i + 1].y - points[i].y) * n ;
-                float z = (points[i + 1].z - points[i].z) * n ;
+                float x = (points[i + 1].x - points[i].x) * n;
+                float y = (points[i + 1].y - points[i].y) * n;
+                float z = (points[i + 1].z - points[i].z) * n;
 
                 _p[i] = new Point(x, y, z);
             }

@@ -93,43 +93,12 @@ public class Casteljau {
 
     /**
      * DeCasteljau rekursiv Version
+     * @deprecated
      **/
-    public static Point DeCasteljau(int k, int i, float t, Point[] P) {
+    public static Point deCasteljau(int k, int i, float t, Point[] P) {
         if (k == 0)
             return P[i];
-        return DeCasteljau(k - 1, i, t, P).times((1 - t)).plus(DeCasteljau(k - 1, i + 1, t, P).times(t));
-    }
-
-    /**
-     * TODO
-     */
-    public static Point[] blossom(Point[] points, float[] multiT) {
-        int n = points.length - 1;
-
-        float a = multiT[0];
-        float b = multiT[1];
-
-        Point[] aHalf = Casteljau.deCasteljau(Constants.points, a); // control Points
-        Point[] bHalf = Casteljau.deCasteljau(Constants.points, b); // control Points
-
-
-        log(aHalf.length + " " + bHalf.length);
-
-        Point[] blossom = new Point[2];
-
-        blossom[0] = aHalf[aHalf.length - 1];
-        blossom[1] = bHalf[bHalf.length - 1];
-
-
-        return blossom;
-    }
-
-
-    //TODO
-    private static Point getBlossomVal(Point a, Point b){
-        Point blos = new Point();
-
-        return blos;
+        return deCasteljau(k - 1, i, t, P).times((1 - t)).plus(deCasteljau(k - 1, i + 1, t, P).times(t));
     }
 
 

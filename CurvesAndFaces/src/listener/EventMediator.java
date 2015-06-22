@@ -26,7 +26,12 @@ public class EventMediator implements KeyListener {
     public EventMediator(GLCanvas canvas) {
         this.canvas = canvas;
 
+        hint();
+    }
+
+    private void hint() {
         log("\nKEY - SET \n" +
+                        "h = Show this Help Frame \n" +
                         "x = Rotate+ on X-Axis\tX = Rotate- on X-Axis \n" +
                         "y = Rotate+ on Y-Axis\tY = Rotate- on Y-Axis \n" +
                         "z = Rotate+ on Z-Axis\tZ = Rotate- on Z-Axis \n" +
@@ -43,7 +48,8 @@ public class EventMediator implements KeyListener {
                         "w = Edit Point Weigth By ID\t \n" +
                         "F1 = Increase Derivate\t \n" +
                         "F2 = Decreade Derivate\t \n" +
-                        "F3 = Increase Points\t \n"
+                        "F3 = Increase Points\t \n" +
+                        "F10 = Switch Control Point Visibility (Only DeCasteljau)\n"
         );
     }
 
@@ -83,6 +89,9 @@ public class EventMediator implements KeyListener {
             case KeyEvent.VK_F3:
                 increasePoints();
                 break;
+            case KeyEvent.VK_F10:
+                Constants.showControl = !Constants.showControl;
+                break;
         }
         canvas.repaint();
     }
@@ -91,25 +100,11 @@ public class EventMediator implements KeyListener {
         Constants.incPoints = true;
     }
 
-    // Redisplay must be called if no animator is used.
-    // Hence when the display is not updated regularly,
-    // but an update should be triggered on some event.
-    private void redisplay() {
-        canvas.display();
-    }
 
     @Override
     public void keyReleased(KeyEvent e) {
     }
 
-    /*Function to use Keys in ANSI Format
-     z = Rotate+ on Z-Axis	Z = Rotate- on Z-Axis
-     x =	-"-     on X-Axis	X = -"-
-     y =	-"-     on Y-Axis	Y = -"-
-     + =	Zoom In                 - = Zoom out		
-     a = Add Point to Model
-     e = Edit Point By ID	d = Delete Point By ID
-     */
     @Override
     public void keyTyped(KeyEvent e) {
         switch (e.getKeyChar()) {
@@ -180,6 +175,9 @@ public class EventMediator implements KeyListener {
                 break;
             case 's':
                 Constants.blossom = !Constants.blossom;
+                break;
+            case 'h':
+                hint();
                 break;
 
         }

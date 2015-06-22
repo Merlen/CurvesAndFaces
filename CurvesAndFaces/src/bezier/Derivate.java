@@ -1,7 +1,5 @@
 package bezier;
 
-import bezier.Casteljau;
-import help.Constants;
 import help.MyMath;
 import struct.Point;
 import struct.Vector;

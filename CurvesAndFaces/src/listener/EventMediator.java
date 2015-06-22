@@ -38,10 +38,11 @@ public class EventMediator implements KeyListener {
                         "d = Delete Point By ID \n" +
                         "c = deCasteljau \n" +
                         "b = bernstein \n" +
-                        "B = Blossoms \n" +
-                        "w = Edit Point Weigth By ID\t \n"+
-                        "F1 = Increase Derivate\t \n"+
-                        "F2 = Decreade Derivate\t \n"+
+                        "s = Blossoms \n" +
+                        "S = set Blossom Values \n" +
+                        "w = Edit Point Weigth By ID\t \n" +
+                        "F1 = Increase Derivate\t \n" +
+                        "F2 = Decreade Derivate\t \n" +
                         "F3 = Increase Points\t \n"
         );
     }
@@ -76,7 +77,7 @@ public class EventMediator implements KeyListener {
             case KeyEvent.VK_F1:
                 increaseDerivate();
                 break;
-            case KeyEvent.VK_F2 :
+            case KeyEvent.VK_F2:
                 decreaseDerivate();
                 break;
             case KeyEvent.VK_F3:
@@ -153,9 +154,11 @@ public class EventMediator implements KeyListener {
                 break;
             case 'c':
                 Constants.castel = true;
+                if (Constants.blossom) Constants.blossom = false;
                 break;
             case 'b':
                 Constants.castel = false;
+                if (Constants.blossom) Constants.blossom = false;
                 break;
             case '4':
                 Constants.traX = Constants.traX - Constants.traFactor;
@@ -172,10 +175,25 @@ public class EventMediator implements KeyListener {
             case 'w':
                 editPointWeight();
                 break;
-            case 'B':
+            case 'S':
+                blossoming();
+                break;
+            case 's':
                 Constants.blossom = !Constants.blossom;
+                break;
+
         }
         canvas.repaint();
+    }
+
+    private void blossoming() {
+        log("Value for t1: ");
+        float t1 = user_input.nextFloat();
+        log("Value for t2: ");
+        float t2 = user_input.nextFloat();
+
+        Constants.firstT = t1;
+        Constants.secondT = t2;
     }
 
     private void log(Object aObject) {
@@ -233,11 +251,11 @@ public class EventMediator implements KeyListener {
         Constants.count = Constants.count - 1;
     }
 
-    private void increaseDerivate(){
+    private void increaseDerivate() {
         Constants.derivate = Constants.derivate + 1;
     }
 
-    private void decreaseDerivate(){
+    private void decreaseDerivate() {
         Constants.derivate = Constants.derivate - 1;
     }
 

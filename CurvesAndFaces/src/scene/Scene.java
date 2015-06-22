@@ -100,20 +100,43 @@ public class Scene implements GLEventListener {
             Constants.points = BezierMath.DegreeInc(Constants.points);
             Constants.count = Constants.count + 1;
         }
+        if (Constants.blossom) {
+            blossom(gl);
 
-        if (Constants.castel) {
-            Casteljau(gl);
         } else {
-            Bernstein(gl);
+            if (Constants.castel) {
+                Casteljau(gl);
+            } else {
+                Bernstein(gl);
+            }
         }
+
 
         resetTransform();
     }
 
-    private void Casteljau(GL2 gl) {
+    private void blossom(GL2 gl) {
         Point[] ctrlPoints;
 
-        drawDerivate(gl, Derivate.getCasteljauDerivate(Constants.derivate, Constants.t, Constants.points));
+        float[] multiT = new float[2];
+        multiT[0] = Constants.firstT;
+        multiT[1] = Constants.secondT;
+
+        ctrlPoints = Casteljau.blossom(Constants.points, multiT); // control Points
+
+        for (Point p : ctrlPoints){
+            drawPoint(gl, p, MyColor.GREEN);
+        }
+
+        //drawPointsAndLine(gl, ctrlPoints, false);
+
+        Point[] castelCurve2 = Casteljau.deCasteljauCurve(Constants.points, Constants.firstT, Constants.secondT); //curve
+        drawCurve(gl, castelCurve2, MyColor.AQUA);
+    }
+
+    private void Casteljau(GL2 gl) {
+        Point[] ctrlPoints;
+        drawDerivate(gl);
 
         if (!Constants.blossom) {
             ctrlPoints = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
@@ -121,23 +144,6 @@ public class Scene implements GLEventListener {
 
             Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, -1f, 2f); //curve
             drawCurve(gl, castelCurve, MyColor.AQUA);
-        } else {
-            Constants.firstT = 1f / 5f;
-            Constants.secondT = 4f / 5f;
-
-            float[] multiT = new float[2];
-            multiT[0] = Constants.firstT;
-            multiT[1] = Constants.secondT;
-
-
-            ctrlPoints = Casteljau.blossom(Constants.points, multiT); // control Points
-
-            for (Point p : ctrlPoints) drawPoint(gl, p, MyColor.BLUE);
-            //drawPointsAndLine(gl, ctrlPoints, false);
-
-            Point[] castelCurve2 = Casteljau.deCasteljauCurve(Constants.points, Constants.firstT, Constants.secondT); //curve
-            drawCurve(gl, castelCurve2, MyColor.AQUA);
-
         }
     }
 
@@ -145,7 +151,7 @@ public class Scene implements GLEventListener {
         Point M;
         Point P = null;
 
-        drawDerivate(gl, Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points));
+        drawDerivate(gl);
 
         P = Constants.points[0];
         for (float t = 0; t <= 1.0; t += 0.01) {
@@ -231,19 +237,26 @@ public class Scene implements GLEventListener {
         System.out.println(this.getClass() + " " + String.valueOf(aObject));
     }
 
-    void drawDerivate(GL2 gl, Vector v) {
-        log("Derivate Vector: " + v);
-        log("Attention: Derivate ignores Weights on Points");
+    void drawDerivate(GL2 gl) {
+        Vector v = new Vector();
+
         if (Constants.derivate > 0) {
             Vector pointT;
+
             if (Constants.castel) {
                 pointT = Derivate.getCasteljauDerivate(0, Constants.t, Constants.points);
-                log("CastelJau derivate not implemented. I chose Bernstein instead " + pointT);
+                v = Derivate.getCasteljauDerivate(Constants.derivate, Constants.t, Constants.points);
+                log("CastelJau Derivate not implemented. I chose Bernstein instead " + pointT);
 
                 pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
+                v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);
             } else {
                 pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
+                v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);
             }
+
+            log("Derivate Vector: " + v);
+            log("Attention: Derivate ignores Weights on Points");
 
             if (pointT != null) {
                 Point p = new Point(pointT.x, pointT.y, pointT.z);

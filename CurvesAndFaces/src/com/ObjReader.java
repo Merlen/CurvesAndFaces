@@ -1,6 +1,8 @@
 package com;
 
+import help.Constants;
 import struct.Point;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +13,10 @@ import java.util.Scanner;
 
 public class ObjReader {
 
+    private final static Charset ENCODING = StandardCharsets.UTF_8;
+    private final Path fFilePath;
     ArrayList<Point> points = new ArrayList<>();
+    int[] indices;
 
     public ObjReader(String aFileName) {
         fFilePath = Paths.get(aFileName);
@@ -44,15 +49,21 @@ public class ObjReader {
                     }
 
                     break;
+                case "deg":
+                    values = new Scanner(aLine.replace("deg", ""));
+                    values.useDelimiter("  | ");
+                    if (values.hasNextInt()) {
+                        Constants.u = values.nextInt();
+                        Constants.v = values.nextInt();
+                        //log("Value is : " + quote(x, y, z));
+                    }
+                    break;
             }
 
         } else {
-            //log("Empty or invalid line. Unable to process.");
+            log("Empty or invalid line. Unable to process.");
         }
     }
-
-    private final Path fFilePath;
-    private final static Charset ENCODING = StandardCharsets.UTF_8;
 
     private void log(Object aObject) {
         System.out.println(this.getClass() + " " + String.valueOf(aObject));
@@ -64,5 +75,20 @@ public class ObjReader {
 
     public ArrayList<Point> getPoints() {
         return points;
+    }
+
+    public Point[][] getPo() {
+        Point[][] poin = new Point[Constants.v][Constants.u];
+        int index = 0;
+
+        for (int i = 0; i < Constants.u; i++) {
+            for (int j = 0; j < Constants.v; j++) {
+                poin[j][i] = new Point();
+                poin[j][i] = points.get(index);
+                index++;
+            }
+        }
+
+        return poin;
     }
 }

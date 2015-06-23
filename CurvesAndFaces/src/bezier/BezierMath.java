@@ -14,7 +14,7 @@ public class BezierMath {
             } else {
                 float calc1 = (((float) i) / (float)n);
                 float calc2 = (1 - calc1);
-                log("i: " + i + " n: " + n + " " + calc2 + " " + calc1);
+                log("i: " + i + " v: " + n + " " + calc2 + " " + calc1);
 
                 if (i == n) newPoints[(i)] = oldPoints[(i - 1)];
                 else

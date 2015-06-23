@@ -23,7 +23,7 @@ public class Casteljau {
             Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
             tempPoints.add(i, p);
         }
-        log(tempPoints.size() + " " + points.length);
+        //log(tempPoints.size() + " " + points.length);
         if (tempPoints.size() > 0) {
             for (int k = 1; k <= n; k++) {
                 for (int i = 0; i <= n - k; i++) {

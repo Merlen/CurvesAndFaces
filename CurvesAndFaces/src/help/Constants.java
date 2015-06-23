@@ -25,4 +25,9 @@ public class Constants {
 
     public static float firstT = 0;
     public static float secondT = 1;
+
+
+    public static int u;
+    public static int v;
+    public static boolean surface = true;
 }

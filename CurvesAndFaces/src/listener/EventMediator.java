@@ -108,13 +108,13 @@ public class EventMediator implements KeyListener {
     public void keyTyped(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 'a':
-                addPoint();
+                if (!Constants.surface) addPoint();
                 break;
             case 'e':
-                editPoint();
+                if (!Constants.surface) editPoint();
                 break;
             case 'd':
-                deletePoint();
+                if (!Constants.surface) deletePoint();
                 break;
             case 'z':
                 Constants.rotZ = Constants.rotZ + Constants.rotFactor;
@@ -170,7 +170,7 @@ public class EventMediator implements KeyListener {
                 editPointWeight();
                 break;
             case 'S':
-                blossoming();
+                if (!Constants.surface) blossoming();
                 break;
             case 's':
                 Constants.blossom = !Constants.blossom;

@@ -1,9 +1,6 @@
 package scene;
 
-import bezier.BezierMath;
 import bezier.curves.Bernstein;
-import bezier.curves.Casteljau;
-import bezier.curves.Derivate;
 import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -12,27 +9,29 @@ import help.MyColor;
 import help.MyMath;
 import listener.EventMediator;
 import struct.Point;
-import struct.Vector;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Merlen
  */
-public class Scene implements GLEventListener {
+public class SurfaceScene implements GLEventListener {
+
 
     private static EventMediator listener;
+
+
     Point[] plaPts = new Point[0];
+
     int scaleFactor = 10;
     private float pointSize = 10;
-    private PolynomialScene polynomialScene;
 
-    public static void Scene() {
+    public static void SurfaceScene() {
         GLProfile glp = GLProfile.getDefault();
         GLCapabilities caps = new GLCapabilities(glp);
         GLCanvas canvas = new GLCanvas(caps);
@@ -49,7 +48,7 @@ public class Scene implements GLEventListener {
             }
         });
 
-        canvas.addGLEventListener(new Scene());
+        canvas.addGLEventListener(new SurfaceScene());
 
         listener = new EventMediator(canvas);
 
@@ -61,7 +60,7 @@ public class Scene implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
-        readOBJ("src/input/UB1_1.obj");
+        readOBJ("src/input/beziersurf.obj");
         drawable.getGL().setSwapInterval(1);
 
     }
@@ -92,91 +91,113 @@ public class Scene implements GLEventListener {
         gl.glTranslatef(Constants.traX, Constants.traY, Constants.traZ); //Movement on X-, Y-, Z-Axis
 
         scaleFactor = Constants.zoom; // zoom
-        axes(gl);
-        drawPointsAndLine(gl, Constants.points, false);
+        //axes(gl);
+
+        //TODO
+        if (Constants.showControl) drawPointsAndLine(gl, Constants.points);
+
 
         if (Constants.incPoints) {
-            Constants.points = BezierMath.DegreeInc(Constants.points);
-            Constants.count = Constants.count + 1;
-        }
-        if (Constants.blossom) {
-            blossom(gl);
+            //TODO
 
-        } else {
-            if (Constants.castel) {
-                Casteljau(gl);
-            } else {
-                Bernstein(gl);
+            for (int i = 0; i < (Constants.v + 1); i++) {
+                Point[] vPoints = getVDirPoints(Constants.points, i); //Points on VDirection
+
+                //Constants.points = BezierMath.DegreeInc(vPoints);
+                //Constants.v = Constants.v + 1;
             }
+
         }
+
+        Bernstein(gl);
 
 
         resetTransform();
     }
 
-    private void blossom(GL2 gl) {
-        log("Blossom Building");
-        Point[] ctrlPoints;
 
-        float[] multiT = new float[2];
-        multiT[0] = Constants.firstT;
-        multiT[1] = Constants.secondT;
+    private Point[] getUDirPoints(Point[] list, int pos) {
+        ArrayList<Point> pointArrayList = new ArrayList<>();
+        Point temp;
 
-        ctrlPoints = Casteljau.blossom(Constants.points, multiT); // control Points
+        for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
 
-        for (Point p : ctrlPoints){
-            drawPoint(gl, p, MyColor.GREEN);
+            //for (int u = 0; u < (Constants.u + 1); u++) {
+            int index = v * (Constants.v + 1) + pos;
+            Point p = Constants.points[index];
+            pointArrayList.add(p);
+            //}
+
+
         }
+        Point[] uLine = new Point[pointArrayList.size()];
+        pointArrayList.toArray(uLine);
 
-        //drawPointsAndLine(gl, ctrlPoints, false);
-
-        Point[] castelCurve2 = Casteljau.deCasteljauCurve(Constants.points, Constants.firstT, Constants.secondT); //curve
-        drawCurve(gl, castelCurve2, MyColor.AQUA);
+        return uLine;
     }
 
-    private void Casteljau(GL2 gl) {
-        log("DeCasteljau Building");
+    private Point[] getVDirPoints(Point[] list, int pos) {
+        ArrayList<Point> pointArrayList = new ArrayList<>();
 
-        Point[] ctrlPoints;
-        drawDerivate(gl);
-
-        if (!Constants.blossom) {
-            ctrlPoints = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
-            if(Constants.showControl) drawPointsAndLine(gl, ctrlPoints, true);
-
-            Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, -1f, 2f); //curve
-            drawCurve(gl, castelCurve, MyColor.AQUA);
+        for (int u = 0; u < (Constants.u + 1); u++) {  // v - Dir
+            int index = pos * (Constants.v + 1) + u;
+            Point p = Constants.points[index];
+            pointArrayList.add(p);
         }
+
+        Point[] uLine = new Point[pointArrayList.size()];
+        pointArrayList.toArray(uLine);
+
+        return uLine;
     }
 
     private void Bernstein(GL2 gl) {
         log("Bernstein Building");
-        Point M;
+        Point[] M = new Point[Constants.u + 1];
         Point P;
+        Point tan;
 
-        drawDerivate(gl);
+        for (int i = 0; i < (Constants.u + 1); i++) {
+            Point[] pointList = getVDirPoints(Constants.points, i); //oben nach unten
+            M[i] = Bernstein.bernsteinCurve(pointList, Constants.t, pointList.length - 1); //T Points on U Control
 
-        P = Constants.points[0];
-        for (float t = 0; t <= 1.0; t += 0.01) {
-            M = Bernstein.bernsteinCurve(Constants.points, t, Constants.count - 1); //curve
-            drawLine(gl, P, M, MyColor.AQUA);
-            P = M;
+            drawPoint(gl, M[i], MyColor.RED);
         }
 
-        if (polynomialScene == null) {
-            polynomialScene = new PolynomialScene(Constants.points, Constants.t);
+        for (int i = 0; i < (Constants.v + 1); i++) {
+            Point[] pointList = getUDirPoints(M, i); //links nach rechts
+            P = M[0];
+            for (float t = 0; t < 1.0; t += 0.01) {
+                tan = Bernstein.bernsteinCurve(M, t, pointList.length - 1); //T Points on M Control
+                drawLine(gl, P, tan, MyColor.GREEN);
 
-        } else {
-            polynomialScene.setPoints(Constants.points, Constants.t);
+                P = tan;
+            }
+
+        }
+
+        for (int i = 0; i < (Constants.v + 1); i++) {
+            Point[] pointList = getUDirPoints(Constants.points, i); //links nach rechts
+            M[i] = Bernstein.bernsteinCurve(pointList, Constants.t, pointList.length - 1); //T Points on V Control
+            drawPoint(gl, M[i], MyColor.BLUE);
+        }
+
+        for (int i = 0; i < (Constants.u + 1); i++) {
+            Point[] pointList = getVDirPoints(M, i); //oben nach unten
+            P = M[0];
+            for (float t = 0; t < 1.0; t += 0.01) {
+                tan = Bernstein.bernsteinCurve(M, t, pointList.length - 1); //T Points on M Control
+                drawLine(gl, P, tan, MyColor.AQUA);
+
+
+                P = tan;
+            }
         }
 
     }
 
-    private void resetTransform() {
-        if (polynomialScene != null && polynomialScene.closed) {
-            polynomialScene = null;
-        }
 
+    private void resetTransform() {
         Constants.rotX = Constants.rotY = Constants.rotZ = Constants.traX = Constants.traY = Constants.traZ = 0;
         Constants.incPoints = false;
         if (Constants.derivate < 0) Constants.derivate = 0;
@@ -201,7 +222,7 @@ public class Scene implements GLEventListener {
     /**
      * Set Points in Listener
      */
-    public void setPoints(List<Point> points) {
+    public void setPoints(ArrayList<Point> points) {
         for (Point point : points) {
             plaPts = help.MyMath.copyPointArray(plaPts);
             plaPts[Constants.count] = new Point(point.x, point.y, point.z);
@@ -241,22 +262,15 @@ public class Scene implements GLEventListener {
     }
 
     void drawDerivate(GL2 gl) {
-        Vector v;
+        struct.Vector v = null;
 
         if (Constants.derivate > 0) {
-            Vector pointT;
+            struct.Vector pointT = null;
 
-            if (Constants.castel) {
-                pointT = Derivate.getCasteljauDerivate(0, Constants.t, Constants.points);
-                v = Derivate.getCasteljauDerivate(Constants.derivate, Constants.t, Constants.points);
-                log("CastelJau Derivate not implemented. I chose Bernstein instead " + pointT);
 
-                pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
-                v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);
-            } else {
-                pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
-                v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);
-            }
+            //pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.pointMulti);
+            //v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.pointMulti);
+
 
             log("Derivate Vector: " + v);
             log("Attention: Derivate ignores Weights on Points");
@@ -311,18 +325,43 @@ public class Scene implements GLEventListener {
 
     /**
      * Draw Points and Lines between them
+     * TODO
      */
-    void drawPointsAndLine(GL2 gl, Point[] list, boolean bez) {
-        if (!bez) {
+    void drawPointsAndLine(GL2 gl, Point[] list) {
+        Point temp = null;
+
+        for (int u = 0; u < (Constants.u + 1); u++) {  // v - Dir
+            temp = null;
+            for (int v = 0; v < (Constants.v + 1); v++) {
+                int index = v * (Constants.v + 1) + u;
+                Point p = list[index];
+
+                drawPoint(gl, p, MyColor.BLUE);
+                if (temp != null) drawLine(gl, p, temp, MyColor.WHITE);
+                temp = p;
+            }
+        }
+
+        for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
+            temp = null;
+            for (int u = 0; u < (Constants.u + 1); u++) {
+                int index = v * (Constants.v + 1) + u;
+                Point p = list[index];
+
+                drawPoint(gl, p, MyColor.BLUE);
+                if (temp != null) drawLine(gl, p, temp, MyColor.GREEN);
+                temp = p;
+
+            }
+        }
+        //gl.glEnd();
+
+        /*
             for (int i = 0; i < (list.length - 1); i++) {
                 drawLine(gl, list[i], list[i + 1], MyColor.WHITE);
                 drawPoint(gl, list[i], MyColor.BLUE);
                 drawPoint(gl, list[i + 1], MyColor.BLUE);
-            }
-        } else {
-            drawControlPoints(gl, list, Constants.count);
-        }
-
+            }*/
     }
 
     /**

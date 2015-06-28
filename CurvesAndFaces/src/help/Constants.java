@@ -16,7 +16,7 @@ public class Constants {
     public static float rotZ = 0;
     public static int zoom = 10;
     public static int derivate = 0;
-    public static float t = 0.5f;
+    public static float t = 0.0f;
     public static float STEPS = 0.1f;
     public static boolean castel = true;
     public static boolean blossom = true;

@@ -2,6 +2,7 @@ package scene;
 
 import bezier.BezierMath;
 import bezier.curves.Casteljau;
+import bezier.curves.Derivate;
 import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -9,6 +10,7 @@ import help.Constants;
 import help.MyColor;
 import listener.EventMediator;
 import struct.Point;
+import struct.Vector;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -163,21 +165,41 @@ public class SurfaceScene implements GLEventListener {
         drawCurvesUDir(gl);
         drawCurvesVDir(gl);
 
-        //curveControl = T Points on Curve
+        if (Constants.derivate > 0) {
+            Vector v = calcDerivateVDir(gl);
+            Vector u = calcDerivateUDir(gl);
 
+            Vector n = new Vector();
+
+            n.x = (v.y * u.z) - (u.y * v.z);
+            n.y = -((v.x * u.z) - (u.x * v.z));
+            n.z = (v.x * u.y) - (u.x * v.y);
+
+            float L = (float) Math.sqrt(Math.pow(n.x, 2) + Math.pow(n.y, 2) + Math.pow(n.x, 2));
+            if (L > 0) {
+                L = 1.0f / L;
+                n.x = n.x / L;
+                n.y = n.y / L;
+                n.z = n.z / L;
+            }
+
+            Point p = new Point(n.x, n.y, n.z);
+            drawPoint(gl, p, MyColor.RED);
+        }
 
     }
 
     private void drawCurvesUDir(GL2 gl) {
         for (float t = 0; t <= 1.0 + Constants.T_STEP; t += Constants.T_STEP) {
             Point[] curveControl = new Point[Constants.v + 1];
+
             for (int v = 0; v <= Constants.v; v++) {
                 Point[] uList = new Point[Constants.u + 1];
 
                 for (int u = 0; u <= Constants.u; u++) {
                     uList[u] = Constants.surfaceCtrl[v][u];
-
                 }
+
                 Point[] uCasteljau = Casteljau.deCasteljau(uList, t);
                 Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
 
@@ -185,6 +207,7 @@ public class SurfaceScene implements GLEventListener {
             }
 
             Point[] castelCurve = Casteljau.deCasteljauCurve(curveControl, 0f, 1f); //curve
+            log(castelCurve[castelCurve.length - 1]);
             drawCurve(gl, castelCurve, MyColor.AQUA);
         }
     }
@@ -194,21 +217,80 @@ public class SurfaceScene implements GLEventListener {
             Point[] curveControl = new Point[Constants.u + 1];
 
             for (int u = 0; u <= Constants.u; u++) {
-                Point[] uList = new Point[Constants.v + 1];
+                Point[] vList = new Point[Constants.v + 1];
 
                 for (int v = 0; v <= Constants.v; v++) {
-                    uList[v] = Constants.surfaceCtrl[v][u];
+                    vList[v] = Constants.surfaceCtrl[v][u];
 
                 }
-                Point[] uCasteljau = Casteljau.deCasteljau(uList, t);
+                Point[] uCasteljau = Casteljau.deCasteljau(vList, t);
                 Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
 
                 curveControl[u] = tOnCurve;
             }
 
             Point[] castelCurve = Casteljau.deCasteljauCurve(curveControl, 0f, 1f); //curve
+            log(castelCurve[castelCurve.length - 1]);
             drawCurve(gl, castelCurve, MyColor.RED);
         }
+    }
+
+
+    // TODO CALC TANGENT
+    private Vector calcDerivateVDir(GL2 gl) {
+        Point[] curveControl = new Point[Constants.u + 1];
+
+        for (int u = 0; u <= Constants.u; u++) {
+            Point[] vList = new Point[Constants.v + 1];
+
+            for (int v = 0; v <= Constants.v; v++) {
+                vList[v] = Constants.surfaceCtrl[v][u];
+
+            }
+            Point[] uCasteljau = Casteljau.deCasteljau(vList, Constants.t);
+            Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
+
+            curveControl[u] = tOnCurve;
+        }
+
+        Vector pointT = Derivate.getBernsteinDerivate(0, Constants.t, curveControl);
+        Vector v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, curveControl);
+
+
+        //Point point = new Point(pointT.x, pointT.y, pointT.z);
+        //drawPoint(gl, point, MyColor.ORANGERED);
+
+        //Point p2 = new Point(point.x + v.x, point.y + v.y, point.z + v.z);
+        return v;//drawLine(gl, point, p2, MyColor.YELLOW);
+    }
+
+    //TODO CALC TANGENT
+    private Vector calcDerivateUDir(GL2 gl) {
+        Point[] curveControl = new Point[Constants.u + 1];
+
+        for (int v = 0; v <= Constants.v; v++) {
+            Point[] uList = new Point[Constants.v + 1];
+
+            for (int u = 0; u <= Constants.u; u++) {
+                uList[v] = Constants.surfaceCtrl[v][u];
+
+            }
+            Point[] uCasteljau = Casteljau.deCasteljau(uList, Constants.t);
+            Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
+
+            curveControl[v] = tOnCurve;
+        }
+
+        //Vector pointT = Derivate.getBernsteinDerivate(0, Constants.t, curveControl);
+        Vector v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, curveControl);
+
+
+        //Point point = new Point(pointT.x, pointT.y, pointT.z);
+        //drawPoint(gl, point, MyColor.ORANGERED);
+
+        //Point p2 = new Point(point.x + v.x, point.y + v.y, point.z + v.z);
+        return v;//drawLine(gl, point, p2, MyColor.YELLOW);
+
     }
 
 
@@ -252,51 +334,22 @@ public class SurfaceScene implements GLEventListener {
 
         for (int idx = 0; idx <= Constants.v; idx++) {
             for (int pos = 0; pos <= Constants.u; pos++) {
-                //for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
                 int index = idx * (Constants.v + 1) + pos;
                 Point p = Constants.points[index];
                 Constants.surfaceCtrl[idx][pos] = p;
 
-                //}
             }
         }
 
         for (int idx = 0; idx <= Constants.u; idx++) {
             for (int pos = 0; pos <= Constants.v; pos++) {
 
-                //for (int u = 0; u < (Constants.u + 1); u++) { // v - Dir
                 int index = idx * (Constants.u + 1) + pos;
                 Point p = Constants.points[index];
                 Constants.surfaceCtrl[idx][pos] = p;
-
-                //}
             }
         }
 
-    }
-
-
-    /**
-     * Draws Axises in Model
-     */
-    void axes(GL2 gl) {
-        gl.glBegin(GL.GL_LINES);
-        gl.glColor3f(1, 0, 0);
-        gl.glVertex3f(-50, 0, 0);
-        gl.glVertex3f(50, 0, 0);
-        gl.glEnd();
-
-        gl.glBegin(GL.GL_LINES);
-        gl.glColor3f(0, 0, 1);
-        gl.glVertex3f(0, -50, 0);
-        gl.glVertex3f(0, 50, 0);
-        gl.glEnd();
-
-        gl.glBegin(GL.GL_LINES);
-        gl.glColor3f(0, 1, 0);
-        gl.glVertex3f(0, 0, -50);
-        gl.glVertex3f(0, 0, 50);
-        gl.glEnd();
     }
 
     /**
@@ -311,11 +364,6 @@ public class SurfaceScene implements GLEventListener {
 
         if (Constants.derivate > 0) {
             struct.Vector pointT = null;
-
-
-            //pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.pointMulti);
-            //v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.pointMulti);
-
 
             log("Derivate Vector: " + v);
             log("Attention: Derivate ignores Weights on Points");

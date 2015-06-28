@@ -87,6 +87,7 @@ public class EventMediator implements KeyListener {
                 decreaseDerivate();
                 break;
             case KeyEvent.VK_F3:
+                if (Constants.surface) switchUVIncrease();
                 increasePoints();
                 break;
             case KeyEvent.VK_F10:
@@ -187,23 +188,45 @@ public class EventMediator implements KeyListener {
         canvas.repaint();
     }
 
+    private void switchUVIncrease() {
+        int u = Constants.U_INCREASE;
+        int v = Constants.V_INCREASE;
+
+        log("CHOSE AN INCREASE DIRECTION: ");
+        log("u == " + u);
+        log("v == " + v);
+
+        do {
+            try {
+                Constants.INCREASE_DIRECTION = user_input.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.print("Input a direction as Number");
+            }
+            user_input.nextLine(); // clears the buffer
+
+        } while (Constants.INCREASE_DIRECTION == 0);
+
+
+    }
     private void blossoming() {
 
-        log("Value for t1: ");
-        float t1 = user_input.nextFloat();
-        log("Value for t2: ");
-        float t2 = user_input.nextFloat();
-
-        while (t1 >= t2) {
-            log("t2 must be higher than t1: " + t1 + " > " + t2);
+        if (!Constants.surface) {
             log("Value for t1: ");
-            t1 = user_input.nextFloat();
+            float t1 = user_input.nextFloat();
             log("Value for t2: ");
-            t2 = user_input.nextFloat();
-        }
+            float t2 = user_input.nextFloat();
 
-        Constants.firstT = t1;
-        Constants.secondT = t2;
+            while (t1 >= t2) {
+                log("t2 must be higher than t1: " + t1 + " > " + t2);
+                log("Value for t1: ");
+                t1 = user_input.nextFloat();
+                log("Value for t2: ");
+                t2 = user_input.nextFloat();
+            }
+
+            Constants.firstT = t1;
+            Constants.secondT = t2;
+        }
     }
 
     private void log(Object aObject) {

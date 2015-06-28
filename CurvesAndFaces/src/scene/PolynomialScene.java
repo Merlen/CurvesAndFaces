@@ -144,7 +144,6 @@ class PolynomialScene implements GLEventListener {
     public void setPoints(Point[] plaPts, float t) {
         this.plaPts = plaPts;
         this.t = t;
-
         if (canvas != null) canvas.repaint();
     }
 

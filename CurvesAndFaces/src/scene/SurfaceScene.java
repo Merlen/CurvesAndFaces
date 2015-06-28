@@ -7,7 +7,6 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import help.Constants;
 import help.MyColor;
-import help.MyMath;
 import listener.EventMediator;
 import struct.Point;
 
@@ -25,17 +24,15 @@ public class SurfaceScene implements GLEventListener {
 
 
     private static EventMediator listener;
-
-
+    private static GLCanvas canvas;
     Point[] plaPts = new Point[0];
-
     int scaleFactor = 10;
     private float pointSize = 10;
 
     public static void SurfaceScene() {
         GLProfile glp = GLProfile.getDefault();
         GLCapabilities caps = new GLCapabilities(glp);
-        GLCanvas canvas = new GLCanvas(caps);
+        canvas = new GLCanvas(caps);
 
         Frame frame = new Frame("Curve Frame");
         frame.setSize(500, 500);
@@ -56,30 +53,6 @@ public class SurfaceScene implements GLEventListener {
         canvas.addKeyListener(listener);
     }
 
-    public void display(GLAutoDrawable drawable) {
-        render(drawable);
-    }
-
-    public void init(GLAutoDrawable drawable) {
-        readOBJ("src/input/beziersurf.obj");
-        drawable.getGL().setSwapInterval(1);
-
-    }
-
-    public void dispose(GLAutoDrawable drawable) {
-        // put your cleanup code here
-    }
-
-    public void reshape(GLAutoDrawable gldrawable, int x, int y, int width, int height) {
-        final GL2 gl = gldrawable.getGL().getGL2();
-        if (height <= 0) {
-            height = 1;
-        }
-        gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(GL2.GL_PROJECTION);
-        gl.glLoadIdentity();
-    }
-
 
     private void render(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
@@ -94,125 +67,148 @@ public class SurfaceScene implements GLEventListener {
         scaleFactor = Constants.zoom; // zoom
         //axes(gl);
 
-        //TODO
-        if (Constants.showControl) drawPointsAndLine(gl, Constants.points);
-
-
-
-        if (Constants.incPoints) {
-            //TODO
-            Point[] extraPoints;
-
-            for (int i = 0; i < (Constants.v + 1); i++) {
-                Point[] vPoints = getVDirPoints(i); //Points on VDirection
-                extraPoints = BezierMath.DegreeInc(vPoints);
-                //Constants.v = Constants.v + 1;
-            }
-
+        if (Constants.showControl) {
+            drawControl(gl);
         }
 
-        Bernstein(gl);
+        if (Constants.incPoints) {
+            if (Constants.INCREASE_DIRECTION == Constants.U_INCREASE) incPointsOnU();
+            if (Constants.INCREASE_DIRECTION == Constants.V_INCREASE) incPointsOnV();
+            Constants.INCREASE_DIRECTION = 0;
+            canvas.repaint();
+        }
 
+        Surface(gl);
 
         resetTransform();
     }
 
 
-    private Point[] getUDirPoints(int pos) {
-        ArrayList<Point> pointArrayList = new ArrayList<>();
-        for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
+    private void incPointsOnU() {
+        int newU = Constants.u + 1;
+        Point[][] tempCopy = Constants.surfaceCtrl;
+        Constants.surfaceCtrl = new Point[Constants.v + 1][newU + 1];
 
-            //for (int u = 0; u < (Constants.u + 1); u++) {
-            int index = v * (Constants.v + 1) + pos;
-            Point p = Constants.points[index];
-            pointArrayList.add(p);
-            //}
+        for (int v = 0; v <= Constants.v; v++) {
+            Point[] newPoints;
+            Point[] PointsOnU = new Point[Constants.u + 1];
 
-
-        }
-        Point[] uLine = new Point[pointArrayList.size()];
-        pointArrayList.toArray(uLine);
-
-        return uLine;
-    }
-
-    private Point[] getVDirPoints(int pos) {
-        ArrayList<Point> pointArrayList = new ArrayList<>();
-
-        for (int u = 0; u < (Constants.u + 1); u++) {  // v - Dir
-            int index = pos * (Constants.v + 1) + u;
-            Point p = Constants.points[index];
-            pointArrayList.add(p);
-        }
-
-        Point[] uLine = new Point[pointArrayList.size()];
-        pointArrayList.toArray(uLine);
-
-        return uLine;
-    }
-
-    private void Bernstein(GL2 gl) {
-        log("Bernstein Building");
-        Point[] tPointsOnV = new Point[(Constants.u + 1)];
-        Point P;
-        Point tan;
-
-
-        Point[] ctrlPoints = null;
-
-
-        for (int i = 0; i < (Constants.u + 1); i++) {
-            Point[] pointList = getVDirPoints(i); //oben nach unten
-            //M[i] = Bernstein.bernsteinPoint(pointList, 0, pointList.length - 1); //T Points on U Control
-
-            ctrlPoints = Casteljau.deCasteljau(pointList, Constants.t); // control Points
-
-            tPointsOnV[i] = ctrlPoints[ctrlPoints.length - 1];
-            drawPoint(gl, ctrlPoints[ctrlPoints.length - 1], MyColor.RED);
-        }
-
-
-        for (int i = 0; i < (Constants.v + 1); i++) {
-            Point[] pointList = getUDirPoints(i); //oben nach unten
-            //M[i] = Bernstein.bernsteinPoint(pointList, 0, pointList.length - 1); //T Points on U Control
-
-            ctrlPoints = Casteljau.deCasteljau(pointList, Constants.t); // control Points
-
-            //tPointsOnV[i] = ctrlPoints[ctrlPoints.length-1];
-            drawPoint(gl, ctrlPoints[ctrlPoints.length - 1], MyColor.RED);
-        }
-
-        /*
-        for (int i = 0; i < (Constants.v + 1); i++) {
-            Point[] pointList = getUDirPoints(i); //links nach rechts
-            P = M[0];
-            for (float t = 0; t < 1.0; t += 0.01) {
-                tan = Bernstein.bernsteinPoint(M, t, pointList.length - 1); //T Points on M Control
-                drawLine(gl, P, tan, MyColor.GREEN);
-
-                P = tan;
+            for (int u = 0; u <= Constants.u; u++) {
+                PointsOnU[u] = tempCopy[v][u]; // Punkt v,u
+                Constants.surfaceCtrl[v][u] = tempCopy[v][u];
             }
 
+
+            newPoints = BezierMath.DegreeInc(PointsOnU);
+            log(newPoints);
+
+            System.arraycopy(newPoints, 0, Constants.surfaceCtrl[v], 0, newU + 1);
         }
-/*
-        for (int i = 0; i < (Constants.v + 1); i++) {
-            Point[] pointList = getUDirPoints(i); //links nach rechts
-            M[i] = Bernstein.bernsteinPoint(pointList, Constants.t, pointList.length - 1); //T Points on V Control
-            drawPoint(gl, M[i], MyColor.BLUE);
-        }
+        Constants.u += 1;
+    }
 
-        for (int i = 0; i < (Constants.u + 1); i++) {
-            Point[] pointList = getVDirPoints(i); //oben nach unten
-            P = M[0];
-            for (float t = 0; t < 1.0; t += 0.01) {
-                tan = Bernstein.bernsteinPoint(M, t, pointList.length - 1); //T Points on M Control
-                drawLine(gl, P, tan, MyColor.AQUA);
+    private void incPointsOnV() {
+        int newV = Constants.v + 1;
+        Point[][] tempCopy = Constants.surfaceCtrl;
 
+        Constants.surfaceCtrl = new Point[newV + 1][Constants.u + 1];
 
-                P = tan;
+        for (int u = 0; u <= Constants.u; u++) {
+            Point[] newPoints;
+            Point[] PointsOnV = new Point[Constants.v + 1];
+
+            for (int v = 0; v <= Constants.v; v++) {
+                PointsOnV[v] = tempCopy[v][u]; // Punkt v,u
+                Constants.surfaceCtrl[v][u] = tempCopy[v][u];
             }
-        }*/
 
+
+            newPoints = BezierMath.DegreeInc(PointsOnV);
+            log(newPoints);
+
+
+            for (int v = 0; v <= newV; v++) {
+                Constants.surfaceCtrl[v][u] = newPoints[v];
+            }
+        }
+        Constants.v += 1;
+    }
+
+    private void drawControl(GL2 gl) {
+
+        for (int v = 0; v <= Constants.v; v++) {
+            for (int u = 0; u < Constants.u; u++) {
+                drawPoint(gl, Constants.surfaceCtrl[v][u], MyColor.AQUA);
+                drawPoint(gl, Constants.surfaceCtrl[v][u + 1], MyColor.AQUA);
+
+                drawLine(gl, Constants.surfaceCtrl[v][u], Constants.surfaceCtrl[v][u + 1], MyColor.WHITE);
+            }
+        }
+
+        for (int v = 0; v < Constants.v; v++) {
+            for (int u = 0; u <= Constants.u; u++) {
+                drawLine(gl, Constants.surfaceCtrl[v][u], Constants.surfaceCtrl[v + 1][u], MyColor.RED);
+            }
+        }
+        drawPoint(gl, Constants.surfaceCtrl[0][0], MyColor.RED); //unten links
+        drawPoint(gl, Constants.surfaceCtrl[0][Constants.u], MyColor.RED); //unten Rechts
+
+        drawPoint(gl, Constants.surfaceCtrl[Constants.v][Constants.u], MyColor.BLUE); //oben Rechts
+        drawPoint(gl, Constants.surfaceCtrl[Constants.v][0], MyColor.BLUE); //oben Links
+    }
+
+    private void Surface(GL2 gl) {
+        log("Surface Building");
+
+        drawCurvesUDir(gl);
+        drawCurvesVDir(gl);
+
+        //curveControl = T Points on Curve
+
+
+    }
+
+    private void drawCurvesUDir(GL2 gl) {
+        for (float t = 0; t <= 1.0 + Constants.T_STEP; t += Constants.T_STEP) {
+            Point[] curveControl = new Point[Constants.v + 1];
+            for (int v = 0; v <= Constants.v; v++) {
+                Point[] uList = new Point[Constants.u + 1];
+
+                for (int u = 0; u <= Constants.u; u++) {
+                    uList[u] = Constants.surfaceCtrl[v][u];
+
+                }
+                Point[] uCasteljau = Casteljau.deCasteljau(uList, t);
+                Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
+
+                curveControl[v] = tOnCurve;
+            }
+
+            Point[] castelCurve = Casteljau.deCasteljauCurve(curveControl, 0f, 1f); //curve
+            drawCurve(gl, castelCurve, MyColor.AQUA);
+        }
+    }
+
+    private void drawCurvesVDir(GL2 gl) {
+        for (float t = 0; t <= 1.0 + Constants.T_STEP; t += Constants.T_STEP) {
+            Point[] curveControl = new Point[Constants.u + 1];
+
+            for (int u = 0; u <= Constants.u; u++) {
+                Point[] uList = new Point[Constants.v + 1];
+
+                for (int v = 0; v <= Constants.v; v++) {
+                    uList[v] = Constants.surfaceCtrl[v][u];
+
+                }
+                Point[] uCasteljau = Casteljau.deCasteljau(uList, t);
+                Point tOnCurve = uCasteljau[uCasteljau.length - 1]; //t Point on U
+
+                curveControl[u] = tOnCurve;
+            }
+
+            Point[] castelCurve = Casteljau.deCasteljauCurve(curveControl, 0f, 1f); //curve
+            drawCurve(gl, castelCurve, MyColor.RED);
+        }
     }
 
 
@@ -248,7 +244,37 @@ public class SurfaceScene implements GLEventListener {
             Constants.count = Constants.count + 1;
         }
         Constants.points = plaPts;
+        setPoints();
     }
+
+    private void setPoints() {
+        Constants.surfaceCtrl = new Point[Constants.v + 1][Constants.u + 1];
+
+        for (int idx = 0; idx <= Constants.v; idx++) {
+            for (int pos = 0; pos <= Constants.u; pos++) {
+                //for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
+                int index = idx * (Constants.v + 1) + pos;
+                Point p = Constants.points[index];
+                Constants.surfaceCtrl[idx][pos] = p;
+
+                //}
+            }
+        }
+
+        for (int idx = 0; idx <= Constants.u; idx++) {
+            for (int pos = 0; pos <= Constants.v; pos++) {
+
+                //for (int u = 0; u < (Constants.u + 1); u++) { // v - Dir
+                int index = idx * (Constants.u + 1) + pos;
+                Point p = Constants.points[index];
+                Constants.surfaceCtrl[idx][pos] = p;
+
+                //}
+            }
+        }
+
+    }
+
 
     /**
      * Draws Axises in Model
@@ -342,66 +368,30 @@ public class SurfaceScene implements GLEventListener {
         gl.glEnd();
     }
 
-    /**
-     * Draw Points and Lines between them
-     * TODO
-     */
-    void drawPointsAndLine(GL2 gl, Point[] list) {
-        Point temp = null;
 
-        for (int u = 0; u < (Constants.u + 1); u++) {  // v - Dir
-            temp = null;
-            for (int v = 0; v < (Constants.v + 1); v++) {
-                int index = v * (Constants.v + 1) + u;
-                Point p = list[index];
-
-                drawPoint(gl, p, MyColor.BLUE);
-                if (temp != null) drawLine(gl, p, temp, MyColor.WHITE);
-                temp = p;
-            }
-        }
-
-        for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
-            temp = null;
-            for (int u = 0; u < (Constants.u + 1); u++) {
-                int index = v * (Constants.v + 1) + u;
-                Point p = list[index];
-
-                drawPoint(gl, p, MyColor.BLUE);
-                if (temp != null) drawLine(gl, p, temp, MyColor.GREEN);
-                temp = p;
-
-            }
-        }
-        //gl.glEnd();
-
-        /*
-            for (int i = 0; i < (list.length - 1); i++) {
-                drawLine(gl, list[i], list[i + 1], MyColor.WHITE);
-                drawPoint(gl, list[i], MyColor.BLUE);
-                drawPoint(gl, list[i + 1], MyColor.BLUE);
-            }*/
+    public void display(GLAutoDrawable drawable) {
+        render(drawable);
     }
 
-    /**
-     * Draw ControlPoints with Lines
-     */
-    void drawControlPoints(GL2 gl, Point[] list, int length) {
+    public void init(GLAutoDrawable drawable) {
+        readOBJ("src/input/beziersurf.obj");
+        drawable.getGL().setSwapInterval(1);
 
-        Point[] tmp = list;
-        int counter = 1;
-        if (length > 2) {
-            while (counter < (length - 1)) {
-                drawLine(gl, tmp[0], tmp[1], MyColor.COLORSWITCH());
-                drawPoint(gl, tmp[0], MyColor.RED);
-                drawPoint(gl, tmp[1], MyColor.RED);
-                tmp = MyMath.removeElt(tmp, 0);
-                counter++;
-            }
-            tmp = MyMath.removeElt(tmp, 0);
-            drawControlPoints(gl, tmp, length - 1);
-        } else {
-            drawPoint(gl, tmp[0], MyColor.AQUA);
-        }
     }
+
+    public void dispose(GLAutoDrawable drawable) {
+        // put your cleanup code here
+    }
+
+    public void reshape(GLAutoDrawable gldrawable, int x, int y, int width, int height) {
+        final GL2 gl = gldrawable.getGL().getGL2();
+        if (height <= 0) {
+            height = 1;
+        }
+        gl.glViewport(0, 0, width, height);
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glLoadIdentity();
+    }
+
+
 }

@@ -34,7 +34,7 @@ class PolynomialScene implements GLEventListener {
         GLCapabilities caps = new GLCapabilities(glp);
         canvas = new GLCanvas(caps);
 
-        final Frame frame = new Frame("Polynomial Scene");
+        final Frame frame = new Frame("Polynomial CurveScene");
         frame.setSize(300, 300);
         frame.add(canvas);
         frame.setVisible(true);

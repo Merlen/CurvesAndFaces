@@ -23,11 +23,11 @@ public final class Point {
     }
 
     // point initialized from parameters
-    public Point(float x, float y, float z, float w) {
+    public Point(float x, float y, float z, float weigth) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.weigth = w;
+        this.weigth = weigth;
     }
 
     // accessor methods
@@ -44,19 +44,21 @@ public final class Point {
     }
 
 
-    public Point plus(Point p){
+    public Point plus(Point p) {
         return new Point(x + p.x, y + p.y, z + p.z);
     }
-    public Point times (float n){
+
+    public Point times(float n) {
         Point sum = new Point();
         sum.x = x * n;
         sum.y = y * n;
         sum.z = z * n;
+        //sum.weigth = weigth * n;
         return sum;
     }
 
-    public Point delta(Point p){
-     Point delta = new Point();
+    public Point delta(Point p) {
+        Point delta = new Point();
         delta.x = p.x - x;
         delta.y = p.y - y;
         delta.z = p.z - z;
@@ -112,7 +114,7 @@ public final class Point {
         return sum;
     }
 
-    public void set(Point p){
+    public void set(Point p) {
         this.x = p.x;
         this.y = p.y;
         this.z = p.z;

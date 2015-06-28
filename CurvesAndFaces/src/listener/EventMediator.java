@@ -7,6 +7,7 @@ import struct.Point;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -90,6 +91,9 @@ public class EventMediator implements KeyListener {
                 break;
             case KeyEvent.VK_F10:
                 Constants.showControl = !Constants.showControl;
+                break;
+            case KeyEvent.VK_ESCAPE:
+                System.exit(0);
                 break;
         }
         canvas.repaint();
@@ -225,7 +229,16 @@ public class EventMediator implements KeyListener {
         for (int i = 0; i < Constants.points.length; i++) {
             log(i + ": Point at" + Constants.points[i]);
         }
-        int idx = user_input.nextInt();
+
+        int idx = -1;
+        do {
+            try {
+                idx = user_input.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.print("Input validate Number");
+            }
+            user_input.nextLine(); // clears the buffer
+        } while (idx < 0);
 
         log("New Value for x: ");
         Constants.points[idx].x = user_input.nextFloat();
@@ -240,10 +253,30 @@ public class EventMediator implements KeyListener {
         for (int i = 0; i < Constants.points.length; i++) {
             log(i + ": Point at" + Constants.points[i]);
         }
-        int idx = user_input.nextInt();
+        int idx = -1;
+
+        do {
+            try {
+                idx = user_input.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.print("Input validate Number");
+            }
+            user_input.nextLine(); // clears the buffer
+        } while (idx < 0);
+
 
         log("New Value for Weight: ");
-        Constants.points[idx].weigth = user_input.nextFloat();
+        float newWeigth = -50000000000000f;
+        do {
+            try {
+                newWeigth = user_input.nextFloat();
+            } catch (InputMismatchException e) {
+                System.out.print("Input validate Number");
+            }
+            user_input.nextLine(); // clears the buffer
+        } while (newWeigth == -50000000000000f);
+
+        Constants.points[idx].weigth = newWeigth;
     }
 
     private void deletePoint() {
@@ -252,7 +285,17 @@ public class EventMediator implements KeyListener {
         }
 
         log("Which Point do you want to delete ?");
-        int idx = user_input.nextInt();
+        int idx = -1;
+
+        do {
+            try {
+                idx = user_input.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.print("Input validate Number");
+            }
+            user_input.nextLine(); // clears the buffer
+        } while (idx < 0);
+
         Constants.points = MyMath.removeElt(Constants.points, idx);
         Constants.count = Constants.count - 1;
     }

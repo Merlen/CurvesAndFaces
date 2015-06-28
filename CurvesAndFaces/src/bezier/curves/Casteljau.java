@@ -1,6 +1,5 @@
 package bezier.curves;
 
-import help.Constants;
 import struct.Point;
 
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ public class Casteljau {
             Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
             tempPoints.add(i, p);
         }
+
         //log(tempPoints.size() + " " + points.length);
         if (tempPoints.size() > 0) {
             for (int k = 1; k <= n; k++) {
@@ -33,6 +33,7 @@ public class Casteljau {
                 }
             }
         }
+
         Point[] curveLine = new Point[pointe.size()];
         pointe.toArray(curveLine);
         return curveLine;
@@ -68,26 +69,31 @@ public class Casteljau {
         for (int k = 1; k <= n; k++) {
             for (int i = 0; i <= n - k; i++) {
                 Point castelPoint = getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t);
+
+
                 tempPoints.get(i).set(castelPoint);
             }
         }
         return tempPoints.get(0);
     }
 
+
     /**
      * Return A Point with CastelJau Formula
      */
     public static Point getCasteljauPoint(Point a, Point b, float t) {
         Point ler = new Point();
+        float homW = (1 - t) * a.weigth + t * b.weigth; //homgenized weigth (wki)
 
-        ler.x = (1 - t) * a.x * a.weigth + t * b.x * b.weigth;
-        ler.y = (1 - t) * a.y * a.weigth + t * b.y * b.weigth;
-        ler.z = (1 - t) * a.z * a.weigth + t * b.z * b.weigth;
+        ler.x = (1 - t) * a.x * (a.weigth / homW) + t * b.x * (b.weigth / homW);
+        ler.y = (1 - t) * a.y * (a.weigth / homW) + t * b.y * (b.weigth / homW);
+        ler.z = (1 - t) * a.z * (a.weigth / homW) + t * b.z * (b.weigth / homW);
         return ler;
     }
 
     /**
      * DeCasteljau rekursiv Version
+     * unused
      **/
     public static Point DeCasteljau(int k, int i, float t, Point[] P) {
         if (k == 0)
@@ -95,37 +101,48 @@ public class Casteljau {
         return DeCasteljau(k - 1, i, t, P).times((1 - t)).plus(DeCasteljau(k - 1, i + 1, t, P).times(t));
     }
 
+
     /**
-     * TODO
-     * Not Implemented Yet
+     * TODO FIXME
      */
-    public static Point[] blossom(Point[] points, float[] multiT) {
+    public static Point[] blosControl(Point[] points, float t1, float t2) {
         int n = points.length - 1;
+        log("n: " + n);
 
-        float a = multiT[0];
-        float b = multiT[1];
+        ArrayList<Point> ctrlPoints = new ArrayList();
+        ArrayList<Point> pointer = new ArrayList<>();
+        tempPoints.clear();
+        for (int i = 0; i <= n; i++) {
+            Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
+            tempPoints.add(i, p);
+        }
 
-        Point[] aHalf = Casteljau.deCasteljau(Constants.points, a); // control Points
-        Point[] bHalf = Casteljau.deCasteljau(Constants.points, b); // control Points
+        if (tempPoints.size() > 0) {
+            for (int k = 1; k <= n; k++) {
+                log("-------------------------- k: " + k);
+
+                for (int i = 0; i <= n - k; i++) {
+                    log("i: " + i + " step ");
+                    Point castelPoint;
+
+                    castelPoint = getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t1);
+                    tempPoints.get(i).set(castelPoint);
+                    pointer.add(castelPoint);
 
 
-        log(aHalf.length + " " + bHalf.length);
+                }
 
-        Point[] blossom = new Point[2];
+            }
+            ctrlPoints.add(tempPoints.get(0));
 
-        blossom[0] = aHalf[aHalf.length - 1];
-        blossom[1] = bHalf[bHalf.length - 1];
-
-
-        return blossom;
-    }
+        }
 
 
-    //TODO
-    private static Point getBlossomVal(Point a, Point b) {
-        Point blos = new Point();
+        log("ctrl size: " + ctrlPoints.size());
+        Point[] curveLine = new Point[ctrlPoints.size()];
+        ctrlPoints.toArray(curveLine);
 
-        return blos;
+        return curveLine;
     }
 
 

@@ -23,11 +23,11 @@ public class Constants {
     public static boolean incPoints = false;
     public static boolean showControl = false;
 
-    public static float firstT = 0;
-    public static float secondT = 1;
+    public static float firstT = 0.3f;
+    public static float secondT = 0.7f;
 
 
     public static int u;
     public static int v;
-    public static boolean surface = true;
+    public static boolean surface = false;
 }

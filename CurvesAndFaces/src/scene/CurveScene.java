@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author Merlen
  */
-public class Scene implements GLEventListener {
+public class CurveScene implements GLEventListener {
 
     private static EventMediator listener;
     Point[] plaPts = new Point[0];
@@ -49,7 +49,7 @@ public class Scene implements GLEventListener {
             }
         });
 
-        canvas.addGLEventListener(new Scene());
+        canvas.addGLEventListener(new CurveScene());
 
         listener = new EventMediator(canvas);
 
@@ -118,13 +118,9 @@ public class Scene implements GLEventListener {
         log("Blossom Building");
         Point[] ctrlPoints;
 
-        float[] multiT = new float[2];
-        multiT[0] = Constants.firstT;
-        multiT[1] = Constants.secondT;
+        ctrlPoints = Casteljau.blosControl(Constants.points, Constants.firstT, Constants.secondT); // control Points
 
-        ctrlPoints = Casteljau.blossom(Constants.points, multiT); // control Points
-
-        for (Point p : ctrlPoints){
+        for (Point p : ctrlPoints) {
             drawPoint(gl, p, MyColor.GREEN);
         }
 
@@ -142,9 +138,9 @@ public class Scene implements GLEventListener {
 
         if (!Constants.blossom) {
             ctrlPoints = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
-            if(Constants.showControl) drawPointsAndLine(gl, ctrlPoints, true);
+            if (Constants.showControl) drawPointsAndLine(gl, ctrlPoints, true);
 
-            Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, -1f, 2f); //curve
+            Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, 0f, 1f); //curve
             drawCurve(gl, castelCurve, MyColor.AQUA);
         }
     }
@@ -158,10 +154,11 @@ public class Scene implements GLEventListener {
 
         P = Constants.points[0];
         for (float t = 0; t <= 1.0; t += 0.01) {
-            M = Bernstein.bernsteinCurve(Constants.points, t, Constants.count - 1); //curve
+            M = Bernstein.bernsteinPoint(Constants.points, t, Constants.count - 1); //curve
             drawLine(gl, P, M, MyColor.AQUA);
             P = M;
         }
+
 
         if (polynomialScene == null) {
             polynomialScene = new PolynomialScene(Constants.points, Constants.t);
@@ -193,7 +190,7 @@ public class Scene implements GLEventListener {
             setPoints(p.getPoints());
 
         } catch (IOException ex) {
-            log(Scene.class
+            log(CurveScene.class
                     .getName() + ex);
         }
     }
@@ -245,14 +242,13 @@ public class Scene implements GLEventListener {
 
         if (Constants.derivate > 0) {
             Vector pointT;
-
+            log("Derivate: " + Constants.derivate);
             if (Constants.castel) {
-                pointT = Derivate.getCasteljauDerivate(0, Constants.t, Constants.points);
-                v = Derivate.getCasteljauDerivate(Constants.derivate, Constants.t, Constants.points);
-                log("CastelJau Derivate not implemented. I chose Bernstein instead " + pointT);
+                Point[] casteljauPoints = Casteljau.deCasteljau(Constants.points, Constants.t);
+                Point p = casteljauPoints[casteljauPoints.length - 1];
+                pointT = new Vector(p.x, p.y, p.z);
 
-                pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
-                v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);
+                v = Derivate.getCasteljauDerivate(Constants.t, Constants.points);
             } else {
                 pointT = Derivate.getBernsteinDerivate(0, Constants.t, Constants.points);
                 v = Derivate.getBernsteinDerivate(Constants.derivate, Constants.t, Constants.points);

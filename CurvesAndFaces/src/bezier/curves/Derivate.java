@@ -4,6 +4,8 @@ import help.MyMath;
 import struct.Point;
 import struct.Vector;
 
+import java.util.ArrayList;
+
 /**
  * @author Merlen
  *
@@ -12,24 +14,37 @@ public class Derivate {
 
 
     /**
-     * Not Implemented Yet
-     * @deprecated
+     * Returns Vector with Casteljau
      * */
-    public static Vector getCasteljauDerivate(int derivate, float t, Point[] points) {
+    public static Vector getCasteljauDerivate(float t, Point[] points) {
+        ArrayList<Point> pointe = new ArrayList<>();
+        ArrayList<Point> tempPoints = new ArrayList<>();
         int n = points.length - 1;
-
-        Point[] deltas = new Point[n];
-
-        for (int i = 0; i < n; i++) {
-            deltas[i] = new Point();
-            deltas[i].x = points[i + 1].x - points[i].x;
-            deltas[i].y = points[i + 1].y - points[i].y;
-            deltas[i].z = points[i + 1].z - points[i].z;
+        for (int i = 0; i <= n; i++) {
+            Point p = new Point(points[i].x, points[i].y, points[i].z, points[i].weigth);
+            tempPoints.add(i, p);
+        }
+        //log(tempPoints.size() + " " + points.length);
+        if (tempPoints.size() > 0) {
+            for (int k = 1; k <= n; k++) {
+                for (int i = 0; i <= n - k; i++) {
+                    Point castelPoint = Casteljau.getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t);
+                    tempPoints.get(i).set(castelPoint);
+                    pointe.add(castelPoint);
+                }
+            }
         }
 
-        Point[] ctrl = Casteljau.deCasteljau(deltas, t); // control Points
+        Point castelMin2 = pointe.get(pointe.size() - 3); //links von t-Point
+        Point castelMin1 = pointe.get(pointe.size() - 2); // Rechts von t-Point
 
-        return new Vector(0, 0, 0);
+        Vector vector = new Vector();
+
+        vector.x = castelMin1.x - castelMin2.x;
+        vector.y = castelMin1.y - castelMin2.y;
+        vector.z = castelMin1.z - castelMin2.z;
+
+        return vector;
     }
 
     /**

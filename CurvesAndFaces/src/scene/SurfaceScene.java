@@ -1,6 +1,7 @@
 package scene;
 
-import bezier.curves.Bernstein;
+import bezier.BezierMath;
+import bezier.curves.Casteljau;
 import com.ObjReader;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -97,13 +98,14 @@ public class SurfaceScene implements GLEventListener {
         if (Constants.showControl) drawPointsAndLine(gl, Constants.points);
 
 
+
         if (Constants.incPoints) {
             //TODO
+            Point[] extraPoints;
 
             for (int i = 0; i < (Constants.v + 1); i++) {
-                Point[] vPoints = getVDirPoints(Constants.points, i); //Points on VDirection
-
-                //Constants.points = BezierMath.DegreeInc(vPoints);
+                Point[] vPoints = getVDirPoints(i); //Points on VDirection
+                extraPoints = BezierMath.DegreeInc(vPoints);
                 //Constants.v = Constants.v + 1;
             }
 
@@ -116,10 +118,8 @@ public class SurfaceScene implements GLEventListener {
     }
 
 
-    private Point[] getUDirPoints(Point[] list, int pos) {
+    private Point[] getUDirPoints(int pos) {
         ArrayList<Point> pointArrayList = new ArrayList<>();
-        Point temp;
-
         for (int v = 0; v < (Constants.v + 1); v++) { // u - Dir
 
             //for (int u = 0; u < (Constants.u + 1); u++) {
@@ -136,7 +136,7 @@ public class SurfaceScene implements GLEventListener {
         return uLine;
     }
 
-    private Point[] getVDirPoints(Point[] list, int pos) {
+    private Point[] getVDirPoints(int pos) {
         ArrayList<Point> pointArrayList = new ArrayList<>();
 
         for (int u = 0; u < (Constants.u + 1); u++) {  // v - Dir
@@ -153,46 +153,65 @@ public class SurfaceScene implements GLEventListener {
 
     private void Bernstein(GL2 gl) {
         log("Bernstein Building");
-        Point[] M = new Point[Constants.u + 1];
+        Point[] tPointsOnV = new Point[(Constants.u + 1)];
         Point P;
         Point tan;
 
-        for (int i = 0; i < (Constants.u + 1); i++) {
-            Point[] pointList = getVDirPoints(Constants.points, i); //oben nach unten
-            M[i] = Bernstein.bernsteinCurve(pointList, Constants.t, pointList.length - 1); //T Points on U Control
 
-            drawPoint(gl, M[i], MyColor.RED);
+        Point[] ctrlPoints = null;
+
+
+        for (int i = 0; i < (Constants.u + 1); i++) {
+            Point[] pointList = getVDirPoints(i); //oben nach unten
+            //M[i] = Bernstein.bernsteinPoint(pointList, 0, pointList.length - 1); //T Points on U Control
+
+            ctrlPoints = Casteljau.deCasteljau(pointList, Constants.t); // control Points
+
+            tPointsOnV[i] = ctrlPoints[ctrlPoints.length - 1];
+            drawPoint(gl, ctrlPoints[ctrlPoints.length - 1], MyColor.RED);
         }
 
+
         for (int i = 0; i < (Constants.v + 1); i++) {
-            Point[] pointList = getUDirPoints(M, i); //links nach rechts
+            Point[] pointList = getUDirPoints(i); //oben nach unten
+            //M[i] = Bernstein.bernsteinPoint(pointList, 0, pointList.length - 1); //T Points on U Control
+
+            ctrlPoints = Casteljau.deCasteljau(pointList, Constants.t); // control Points
+
+            //tPointsOnV[i] = ctrlPoints[ctrlPoints.length-1];
+            drawPoint(gl, ctrlPoints[ctrlPoints.length - 1], MyColor.RED);
+        }
+
+        /*
+        for (int i = 0; i < (Constants.v + 1); i++) {
+            Point[] pointList = getUDirPoints(i); //links nach rechts
             P = M[0];
             for (float t = 0; t < 1.0; t += 0.01) {
-                tan = Bernstein.bernsteinCurve(M, t, pointList.length - 1); //T Points on M Control
+                tan = Bernstein.bernsteinPoint(M, t, pointList.length - 1); //T Points on M Control
                 drawLine(gl, P, tan, MyColor.GREEN);
 
                 P = tan;
             }
 
         }
-
+/*
         for (int i = 0; i < (Constants.v + 1); i++) {
-            Point[] pointList = getUDirPoints(Constants.points, i); //links nach rechts
-            M[i] = Bernstein.bernsteinCurve(pointList, Constants.t, pointList.length - 1); //T Points on V Control
+            Point[] pointList = getUDirPoints(i); //links nach rechts
+            M[i] = Bernstein.bernsteinPoint(pointList, Constants.t, pointList.length - 1); //T Points on V Control
             drawPoint(gl, M[i], MyColor.BLUE);
         }
 
         for (int i = 0; i < (Constants.u + 1); i++) {
-            Point[] pointList = getVDirPoints(M, i); //oben nach unten
+            Point[] pointList = getVDirPoints(i); //oben nach unten
             P = M[0];
             for (float t = 0; t < 1.0; t += 0.01) {
-                tan = Bernstein.bernsteinCurve(M, t, pointList.length - 1); //T Points on M Control
+                tan = Bernstein.bernsteinPoint(M, t, pointList.length - 1); //T Points on M Control
                 drawLine(gl, P, tan, MyColor.AQUA);
 
 
                 P = tan;
             }
-        }
+        }*/
 
     }
 
@@ -214,7 +233,7 @@ public class SurfaceScene implements GLEventListener {
             setPoints(p.getPoints());
 
         } catch (IOException ex) {
-            log(Scene.class
+            log(CurveScene.class
                     .getName() + ex);
         }
     }

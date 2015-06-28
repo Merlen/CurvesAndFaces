@@ -9,14 +9,25 @@ import struct.Point;
 public class Bernstein {
 
 
-    public static Point bernsteinCurve(Point[] ctrl, float t, int n) {
+    public static Point bernsteinPoint(Point[] ctrl, float t, int n) {
         Point N = new Point();
         N.x = N.y = N.z = 0;
+        float homW = 0;
         for (int i = 0; i <= n; i++) {
+            homW += (float) (MyMath.binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth);
+
             N.x += ctrl[i].x * MyMath.binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
             N.y += ctrl[i].y * MyMath.binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
             N.z += ctrl[i].z * MyMath.binomial(i, n) * Math.pow(t, i) * Math.pow((1 - t), (n - i)) * ctrl[i].weigth;
         }
+
+        if (homW != 0) {
+            N.x = N.x / homW;
+            N.y = N.y / homW;
+            N.z = N.z / homW;
+        } else log("--------------------------- Div error ---------------------------");
+
+
         return N;
     }
 
@@ -31,6 +42,6 @@ public class Bernstein {
     }
 
     private static void log(Object aObject) {
-        System.out.println("Bernstein: " + " " +String.valueOf(aObject));
+        System.out.println("Bernstein: " + " " + String.valueOf(aObject));
     }
 }

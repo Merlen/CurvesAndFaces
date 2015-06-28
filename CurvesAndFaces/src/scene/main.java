@@ -9,10 +9,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        if (!Constants.surface) {
-            Scene.Scene();
-        } else {
+        if (Constants.surface) {
             SurfaceScene.SurfaceScene();
+
+        } else {
+            CurveScene.Scene();
         }
 
     }

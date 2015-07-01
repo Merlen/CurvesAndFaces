@@ -28,7 +28,7 @@ public class Derivate {
         if (tempPoints.size() > 0) {
             for (int k = 1; k <= n; k++) {
                 for (int i = 0; i <= n - k; i++) {
-                    Point castelPoint = Casteljau.getCasteljauPointOneT(tempPoints.get(i), tempPoints.get(i + 1), t);
+                    Point castelPoint = Casteljau.getCasteljauPoint(tempPoints.get(i), tempPoints.get(i + 1), t);
                     tempPoints.get(i).set(castelPoint);
                     pointe.add(castelPoint);
                 }

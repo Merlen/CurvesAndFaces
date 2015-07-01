@@ -138,7 +138,10 @@ public class CurveScene implements GLEventListener {
 
         if (!Constants.blossom) {
             ctrlPoints = Casteljau.deCasteljau(Constants.points, Constants.t); // control Points
-            if (Constants.showControl) drawPointsAndLine(gl, ctrlPoints, true);
+            if (Constants.showControl) {
+                log("");
+                drawPointsAndLine(gl, ctrlPoints, true);
+            }
 
             Point[] castelCurve = Casteljau.deCasteljauCurve(Constants.points, 0f, 1f); //curve
             drawCurve(gl, castelCurve, MyColor.AQUA);
@@ -316,6 +319,7 @@ public class CurveScene implements GLEventListener {
                 drawPoint(gl, list[i + 1], MyColor.BLUE);
             }
         } else {
+            log(Constants.count + " ::");
             drawControlPoints(gl, list, Constants.count);
         }
 
@@ -330,9 +334,9 @@ public class CurveScene implements GLEventListener {
         int counter = 1;
         if (length > 2) {
             while (counter < (length - 1)) {
-                drawLine(gl, tmp[0], tmp[1], MyColor.COLORSWITCH());
-                drawPoint(gl, tmp[0], MyColor.RED);
-                drawPoint(gl, tmp[1], MyColor.RED);
+                drawLine(gl, tmp[0], tmp[1], MyColor.GREEN);
+                drawPoint(gl, tmp[0], MyColor.YELLOW);
+                drawPoint(gl, tmp[1], MyColor.YELLOW);
                 tmp = MyMath.removeElt(tmp, 0);
                 counter++;
             }

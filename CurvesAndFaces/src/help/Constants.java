@@ -19,7 +19,7 @@ public class Constants {
     public static float t = 0.0f;
     public static float STEPS = 0.1f;
     public static boolean castel = true;
-    public static boolean blossom = true;
+    public static boolean blossom = false;
     public static boolean incPoints = false;
     public static boolean showControl = true;
 

@@ -23,15 +23,15 @@ public class Constants {
     public static boolean incPoints = false;
     public static boolean showControl = true;
 
-    public static float firstT = 0.3f;
-    public static float secondT = 0.7f;
+    public static float firstT = 0f;
+    public static float secondT = 1f;
 
 
     public static int u;
     public static int v;
-    public static boolean surface = true;
+    public static boolean surface = false;
     public static Point[][] surfaceCtrl;
-    public static float T_STEP = 0.05f;
+    public static float T_STEP = 0.01f;
 
     public static int U_INCREASE = -1;
     public static int V_INCREASE = 1;

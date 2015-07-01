@@ -162,7 +162,7 @@ public class SurfaceScene implements GLEventListener {
     private void Surface(GL2 gl) {
         log("Surface Building");
 
-        drawCurvesUDir(gl);
+        //drawCurvesUDir(gl);
         drawCurvesVDir(gl);
 
         if (Constants.derivate > 0) {
@@ -190,7 +190,7 @@ public class SurfaceScene implements GLEventListener {
     }
 
     private void drawCurvesUDir(GL2 gl) {
-        for (float t = 0; t <= 1.0 + Constants.T_STEP; t += Constants.T_STEP) {
+        for (float t = 0; t <= 1.0; t += Constants.T_STEP) {
             Point[] curveControl = new Point[Constants.v + 1];
 
             for (int v = 0; v <= Constants.v; v++) {
@@ -213,7 +213,7 @@ public class SurfaceScene implements GLEventListener {
     }
 
     private void drawCurvesVDir(GL2 gl) {
-        for (float t = 0; t <= 1.0 + Constants.T_STEP; t += Constants.T_STEP) {
+        for (float t = 0; t <= 1.0; t += Constants.T_STEP) {
             Point[] curveControl = new Point[Constants.u + 1];
 
             for (int u = 0; u <= Constants.u; u++) {

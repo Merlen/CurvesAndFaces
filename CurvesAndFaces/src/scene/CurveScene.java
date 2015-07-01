@@ -126,7 +126,7 @@ public class CurveScene implements GLEventListener {
 
         //drawPointsAndLine(gl, ctrlPoints, false);
 
-        Point[] castelCurve2 = Casteljau.deCasteljauCurve(Constants.points, Constants.firstT, Constants.secondT); //curve
+        Point[] castelCurve2 = Casteljau.deCasteljauCurve(ctrlPoints, 0, 1); //curve
         drawCurve(gl, castelCurve2, MyColor.AQUA);
     }
 
